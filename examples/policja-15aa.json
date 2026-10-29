@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "rules_checked": "2026-10-29",
+  "profile": {
+    "name": "Policja — art. 15aa i własne dodatki",
+    "service": "Policja",
+    "first_entry": "2001-01-01",
+    "release": "2026-10-31",
+    "right_date": "2026-11-01",
+    "regime": "15aa",
+    "new_system": false,
+    "service_months": 310,
+    "qualifying_25_months": 310,
+    "pre_contrib_months": 24,
+    "pre_noncontrib_months": 0,
+    "post_contrib_months": 0,
+    "post_conditions": false,
+    "disability": false,
+    "medal": false,
+    "special_case": false,
+    "fus_service_used": false,
+    "exclusion": false,
+    "base_mode": "gotowa podstawa",
+    "base": "10000",
+    "salary": "8000",
+    "permanent": "1000",
+    "annual_award": "12000",
+    "longevity": "0",
+    "current_reference": "10000",
+    "annual_pay": [],
+    "minimum": "1978.49",
+    "fus_pension": "0",
+    "bonuses": [],
+    "extras": [
+      {
+        "name": "Hipotetyczne 2 pp",
+        "unit": "pp podstawy",
+        "value": "2",
+        "indexed": true,
+        "enabled": true
+      },
+      {
+        "name": "Stały dodatek wariantu",
+        "unit": "zł miesięcznie",
+        "value": "150",
+        "indexed": false,
+        "enabled": true
+      }
+    ],
+    "forecast_years": 20,
+    "growth": "4",
+    "inflation": "2.5",
+    "overrides": {}
+  }
+}

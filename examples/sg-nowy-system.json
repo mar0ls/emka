@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "rules_checked": "2026-10-29",
+  "profile": {
+    "name": "SG — system od 2013, fikcyjne dane roczne",
+    "service": "SG",
+    "first_entry": "2013-01-01",
+    "release": "2037-12-31",
+    "right_date": "2038-01-01",
+    "regime": "auto",
+    "new_system": true,
+    "service_months": 300,
+    "qualifying_25_months": 300,
+    "pre_contrib_months": 0,
+    "pre_noncontrib_months": 0,
+    "post_contrib_months": 0,
+    "post_conditions": false,
+    "disability": false,
+    "medal": false,
+    "special_case": false,
+    "fus_service_used": false,
+    "exclusion": false,
+    "base_mode": "10 kolejnych lat",
+    "base": "10000",
+    "salary": "8000",
+    "permanent": "1000",
+    "annual_award": "12000",
+    "longevity": "0",
+    "current_reference": "10000",
+    "annual_pay": [
+      {
+        "year": 2027,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2028,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2029,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2030,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2031,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2032,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2033,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2034,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2035,
+        "pay": "120000",
+        "reference": "100000"
+      },
+      {
+        "year": 2036,
+        "pay": "120000",
+        "reference": "100000"
+      }
+    ],
+    "minimum": "1978.49",
+    "fus_pension": "0",
+    "bonuses": [],
+    "extras": [],
+    "forecast_years": 20,
+    "growth": "4",
+    "inflation": "2.5",
+    "overrides": {}
+  }
+}

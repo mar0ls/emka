@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "rules_checked": "2026-10-29",
+  "profile": {
+    "name": "PSP — udokumentowane warunki szczególne",
+    "service": "PSP",
+    "first_entry": "1998-01-01",
+    "release": "2026-10-31",
+    "right_date": "2026-11-01",
+    "regime": "auto",
+    "new_system": false,
+    "service_months": 346,
+    "qualifying_25_months": 346,
+    "pre_contrib_months": 0,
+    "pre_noncontrib_months": 0,
+    "post_contrib_months": 0,
+    "post_conditions": false,
+    "disability": false,
+    "medal": false,
+    "special_case": false,
+    "fus_service_used": false,
+    "exclusion": false,
+    "base_mode": "gotowa podstawa",
+    "base": "10000",
+    "salary": "8000",
+    "permanent": "1000",
+    "annual_award": "12000",
+    "longevity": "0",
+    "current_reference": "10000",
+    "annual_pay": [],
+    "minimum": "1978.49",
+    "fus_pension": "0",
+    "bonuses": [
+      {
+        "name": "Przykładowe zaświadczenie — fikcyjne dane",
+        "kind": "0,5%/rok",
+        "start": "2005-01",
+        "end": "2009-12",
+        "confirmed": true
+      }
+    ],
+    "extras": [],
+    "forecast_years": 20,
+    "growth": "4",
+    "inflation": "2.5",
+    "overrides": {}
+  }
+}

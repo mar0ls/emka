@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "emka"
+version = "1.3.0"
+description = "Kalkulator i symulator emerytur polskich funkcjonariuszy"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+emka = "emka.gui:main"
+
+[tool.setuptools.packages.find]
+include = ["emka*"]
+
+[tool.setuptools.package-data]
+emka = ["PRZEPISY.md", "assets/*"]
