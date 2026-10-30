@@ -23,7 +23,7 @@ Opcjonalna instalacja jako pakiet: `python3 -m pip install .`, następnie `emka`
 - Potwierdzone podwyższenia roczne, strefa wojny, inwalidztwo związane ze służbą i Medal im. Andrzeja Struja; właściwe limity 75/76/80/81%.
 - Rozliczanie zbiegu podwyższeń w tych samych miesiącach; brak automatycznego sumowania.
 - Własne fakultatywne dodatki w pp podstawy, % emerytury lub zł miesięcznie; włączenie/wyłączenie i waloryzowanie osobno dla każdej pozycji.
-- Symulacja do 60 lat, domyślna waloryzacja i inflacja oraz różne wartości w wybranych latach; wykres, kwoty realne, suma roczna z marcową waloryzacją i suma narastająca.
+- Symulacja do 60 lat, domyślna waloryzacja i inflacja oraz różne wartości w wybranych latach; wykres z wyborem linii (wariant, ustawa, wartość realna, netto), kwoty realne, suma roczna z marcową waloryzacją i suma narastająca. Najedź myszą na nagłówek kolumny tabeli, aby zobaczyć, co oznacza (te same objaśnienia są w raporcie).
 - Porównanie niezależnych kopii scenariuszy, profile JSON, CSV otwierane z polskimi separatorami i raport Markdown z pełnymi danymi oraz założeniami.
 - **Emerytura netto:** składka zdrowotna 9% i zaliczka na PIT (12%/32%, z kwotą zmniejszającą 300 zł miesięcznie albo bez niej); netto także w symulacji, CSV i raporcie.
 - **Dorabianie w cywilnej firmie:** o ile zmniejszy się emerytura mundurowa przy danym przychodzie brutto (art. 41 ustawy i art. 104 ustawy o FUS): do 70% przeciętnego wynagrodzenia bez zmian, 70–130% o kwotę przekroczenia (nie więcej niż kwota maksymalna i 25% emerytury), powyżej 130% o 25%; emerytura równa 75% podstawy nie jest zmniejszana. Progi są edytowalne, bo ZUS zmienia je co kwartał.

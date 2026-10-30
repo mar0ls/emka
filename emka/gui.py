@@ -15,7 +15,7 @@ from .engine import (AnnualPay, BONUS_RATES, Bonus, Extra, FIELD_LABELS, MONTH_F
                      RULE_DATE, SERVICES, calculate, earnings_effect, earnings_table, forecast,
                      full_months_between, integer, net_pension, number, parse_date, parse_month,
                      service_rules)
-from .helptext import HELP
+from .helptext import EARNINGS_COLUMNS, FORECAST_COLUMNS, HELP
 from .storage import export_csv, load_profile, report, save_profile
 
 # Kolory i czcionka całego programu.
@@ -26,6 +26,13 @@ FONT = "Helvetica"
 GOOD_FG = "#24856b"
 ICON_PATH = Path(__file__).with_name("assets") / "icon.png"
 
+# Linie na wykresie: (pole w ForecastRow, indeks kolumny w FORECAST_COLUMNS, kolor, czy zaznaczona domyślnie).
+CHART_SERIES = (
+    ("december", 2, ACCENT, True),
+    ("legal_december", 3, GOOD_FG, True),
+    ("real_december", 4, "#ce7b24", True),
+    ("net_december", 5, "#7b4fc9", False),
+)
 LAW_URL = "https://eli.gov.pl/eli/DU/2026/505/ogl/pol"
 TEXT_WIDTH = 650  # szerokość (px) zawijanych opisów na stronach formularza
 
@@ -35,44 +42,38 @@ def format_pln(amount):
     return f"{amount:,.2f}".replace(",", " ").replace(".", ",") + " zł"
 
 
-class Tooltip:
-    """Chmurka z pomocą: po najechaniu myszą (z lekkim opóźnieniem) albo po F1."""
+class Popup:
+    """Okienko z opisem (chmurka). Zarządza oknem; podklasy decydują, kiedy i gdzie je pokazać."""
 
     DELAY_MS = 450
 
-    def __init__(self, widget, text):
+    def __init__(self, widget):
         self.widget = widget
-        self.text = text
         self.timer = None
         self.window = None
-        widget.bind("<Enter>", self.schedule, add="+")
-        widget.bind("<Leave>", self.hide, add="+")
-        widget.bind("<ButtonPress>", self.hide, add="+")
-        widget.bind("<FocusOut>", self.hide, add="+")
-        widget.bind("<F1>", self.show, add="+")
-        widget.bind("<Destroy>", self.hide, add="+")
 
-    def schedule(self, event=None):
+    def schedule_at(self, text, x, y_below, y_above):
+        """Pokaże chmurkę po krótkim opóźnieniu, żeby nie migała przy szybkim ruchu myszy."""
         self.hide()
-        self.timer = self.widget.after(self.DELAY_MS, self.show)
+        self.timer = self.widget.after(self.DELAY_MS, lambda: self.show_at(text, x, y_below, y_above))
 
-    def show(self, event=None):
+    def show_at(self, text, x, y_below, y_above):
+        """Chmurka w poziomie `x`: pod `y_below`, a gdy się nie mieści - nad `y_above`. Zawsze w obrębie ekranu."""
         self.hide()
         if not self.widget.winfo_exists():
             return
         self.window = tk.Toplevel(self.widget)
         self.window.wm_overrideredirect(True)
         self.window.attributes("-topmost", True)
-        tk.Label(self.window, text=self.text, justify="left", wraplength=370, bg="#fffbe8", fg=INK,
+        tk.Label(self.window, text=text, justify="left", wraplength=370, bg="#fffbe8", fg=INK,
                  relief="solid", borderwidth=1, padx=14, pady=12, font=(FONT, 12)).pack()
         self.window.update_idletasks()
 
-        # Domyślnie pod polem; jeśli się nie mieści - nad nim. Zawsze w obrębie ekranu.
         screen_w, screen_h = self.widget.winfo_screenwidth(), self.widget.winfo_screenheight()
-        x = min(self.widget.winfo_rootx() + 12, screen_w - self.window.winfo_reqwidth() - 12)
-        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 7
+        x = min(x, screen_w - self.window.winfo_reqwidth() - 12)
+        y = y_below
         if y + self.window.winfo_reqheight() > screen_h - 12:
-            y = max(12, self.widget.winfo_rooty() - self.window.winfo_reqheight() - 7)
+            y = max(12, y_above - self.window.winfo_reqheight() - 7)
         self.window.geometry(f"+{max(0, x)}+{max(0, y)}")
 
     def hide(self, event=None):
@@ -82,6 +83,65 @@ class Tooltip:
         if self.window:
             self.window.destroy()
             self.window = None
+
+
+class Tooltip(Popup):
+    """Pomoc przy polu: po najechaniu myszą (z lekkim opóźnieniem) albo po F1."""
+
+    def __init__(self, widget, text):
+        super().__init__(widget)
+        self.text = text
+        widget.bind("<Enter>", self.on_enter, add="+")
+        widget.bind("<Leave>", self.hide, add="+")
+        widget.bind("<ButtonPress>", self.hide, add="+")
+        widget.bind("<FocusOut>", self.hide, add="+")
+        widget.bind("<F1>", self.show, add="+")
+        widget.bind("<Destroy>", self.hide, add="+")
+
+    def position(self):
+        """Domyślnie chmurka pojawia się pod polem."""
+        return (self.widget.winfo_rootx() + 12, self.widget.winfo_rooty() + self.widget.winfo_height() + 7,
+                self.widget.winfo_rooty())
+
+    def on_enter(self, event=None):
+        self.schedule_at(self.text, *self.position())
+
+    def show(self, event=None):
+        self.show_at(self.text, *self.position())
+
+
+class HeadingTooltip(Popup):
+    """Chmurki z opisem kolumn tabeli. Nagłówki Treeview nie są osobnymi widgetami, więc śledzimy ruch myszy."""
+
+    def __init__(self, tree, texts):
+        super().__init__(tree)
+        self.texts = texts  # opisy w kolejności kolumn
+        self.column = None  # kolumna, nad którą jest teraz mysz
+        tree.bind("<Motion>", self.on_motion, add="+")
+        tree.bind("<Leave>", self.on_leave, add="+")
+        tree.bind("<ButtonPress>", self.on_leave, add="+")
+        tree.bind("<Destroy>", self.hide, add="+")
+
+    def column_text(self, column_id):
+        """Opis kolumny o identyfikatorze Treeview: '#1', '#2'... (puste, gdy brak)."""
+        match = re.fullmatch(r"#(\d+)", column_id or "")
+        index = int(match.group(1)) - 1 if match else -1
+        return self.texts[index] if 0 <= index < len(self.texts) else ""
+
+    def on_motion(self, event):
+        in_heading = self.widget.identify_region(event.x, event.y) == "heading"
+        column = self.widget.identify_column(event.x) if in_heading else None
+        if column == self.column:
+            return  # nadal ta sama kolumna - nie ruszamy chmurki
+        self.column = column
+        self.hide()
+        text = self.column_text(column)
+        if text:
+            self.schedule_at(text, event.x_root + 12, event.y_root + 22, event.y_root - 15)
+
+    def on_leave(self, event=None):
+        self.column = None
+        self.hide()
 
 
 class ScrollFrame(ttk.Frame):
@@ -612,12 +672,13 @@ class App(tk.Tk):
 
         ttk.Label(f, text="Jak zmienia się emerytura w zależności od przychodu", style="Heading.TLabel",
                   font=(FONT, 14, "bold")).pack(anchor="w", pady=(4, 6))
-        columns = ("Przychód z pracy", "Zmniejszenie", "Emerytura brutto", "Emerytura netto")
+        columns = [name for name, _ in EARNINGS_COLUMNS]
         self.earn_tree = ttk.Treeview(f, columns=columns, show="headings", height=4)
         for column in columns:
             self.earn_tree.heading(column, text=column)
             self.earn_tree.column(column, width=150, minwidth=90, anchor="e", stretch=True)
         self.earn_tree.pack(fill="x")
+        self.earn_help = HeadingTooltip(self.earn_tree, [text for _, text in EARNINGS_COLUMNS])
 
     def build_forecast(self):
         f = self.page("6  Symulacja")
@@ -629,25 +690,38 @@ class App(tk.Tk):
         self.field(f, "growth", "Domyślny wzrost roczny — %")
         self.field(f, "inflation", "Domyślna inflacja roczna — %")
         self.override_tree = self.table(
-            f, ("Rok", "Wzrost %", "Inflacja %"),
+            f, ("Rok", "Waloryzacja %", "Inflacja %"),
             add=self.edit_override, edit=lambda: self.edit_override(True), delete=self.delete_override)
 
-        self.chart = tk.Canvas(f, height=250, bg="#f5f8fc", highlightthickness=0)
-        self.chart.pack(fill="x", pady=15)
-        self.chart.bind("<Configure>", lambda e: self.draw_chart())
-        ttk.Label(f, text="Niebieski: wariant · zielony: reguły ustawy · pomarańczowy: wariant realnie",
-                  style="Hint.TLabel").pack(anchor="w")
+        # Wybór linii na wykresie; kolorowa kreska działa jak legenda, opis pojawia się po najechaniu myszą.
+        options = ttk.Frame(f, style="White.TFrame")
+        options.pack(fill="x", pady=(18, 0))
+        ttk.Label(options, text="Na wykresie:", style="Hint.TLabel").pack(side="left", padx=(0, 10))
+        self.chart_vars = {}
+        for attribute, index, color, default in CHART_SERIES:
+            name, description = FORECAST_COLUMNS[index]
+            variable = tk.BooleanVar(value=default)
+            variable.trace_add("write", lambda *args: self.draw_chart())
+            tk.Label(options, text="━━", fg=color, bg="white", font=(FONT, 12, "bold")).pack(side="left")
+            box = ttk.Checkbutton(options, text=name, variable=variable)
+            box.pack(side="left", padx=(2, 14))
+            Tooltip(box, description)
+            self.chart_vars[attribute] = variable
 
-        columns = ("Rok", "Wzrost %", "Grudzień wariantu", "Grudzień ustawa", "Realnie", "Netto", "Rocznie",
-                   "Narastająco")
+        self.chart = tk.Canvas(f, height=250, bg="#f5f8fc", highlightthickness=0)
+        self.chart.pack(fill="x", pady=(6, 15))
+        self.chart.bind("<Configure>", lambda e: self.draw_chart())
+
+        columns = [name for name, _ in FORECAST_COLUMNS]
         wrap = ttk.Frame(f, style="White.TFrame")
         wrap.pack(fill="x", pady=12)
         self.forecast_tree = ttk.Treeview(wrap, columns=columns, show="headings", height=12)
         for column in columns:
             self.forecast_tree.heading(column, text=column)
-            self.forecast_tree.column(column, width=135, minwidth=85, anchor="e", stretch=False)
-        self.forecast_tree.column("Rok", width=70)
-        self.forecast_tree.column("Wzrost %", width=85)
+            self.forecast_tree.column(column, width=150, minwidth=95, anchor="e", stretch=False)
+        self.forecast_tree.column(columns[0], width=70)
+        self.forecast_tree.column(columns[1], width=120)
+        self.forecast_help = HeadingTooltip(self.forecast_tree, [text for _, text in FORECAST_COLUMNS])
         scrollbar = ttk.Scrollbar(wrap, orient="horizontal", command=self.forecast_tree.xview)
         self.forecast_tree.configure(xscrollcommand=scrollbar.set)
         self.forecast_tree.pack(fill="x")
@@ -983,7 +1057,7 @@ class App(tk.Tk):
                                                       format_pln(after), format_pln(net_after)))
 
     def draw_chart(self):
-        """Wykres grudniowej emerytury w kolejnych latach (trzy linie)."""
+        """Wykres miesięcznej (grudniowej) emerytury w kolejnych latach; linie wybiera użytkownik."""
         canvas = self.chart
         canvas.delete("all")
         if not self.result or not self.rows:
@@ -991,9 +1065,14 @@ class App(tk.Tk):
 
         width = max(canvas.winfo_width(), 500)
         left, top, bottom, right = 78, 22, 214, width - 26
-        series = [(ACCENT, [float(r.december) for r in self.rows]),
-                  ("#24856b", [float(r.legal_december) for r in self.rows]),
-                  ("#ce7b24", [float(r.real_december) for r in self.rows])]
+        series = [(color, [float(getattr(row, attribute)) for row in self.rows])
+                  for attribute, _, color, _ in CHART_SERIES if self.chart_vars[attribute].get()]
+        if not series:
+            canvas.create_text(width / 2, 110, text="Zaznacz co najmniej jedną linię, aby zobaczyć wykres.",
+                               fill=MUTED, font=(FONT, 12))
+            return
+        canvas.create_text(left, 8, text="Miesięczna emerytura w grudniu, zł", anchor="w", fill=MUTED,
+                           font=(FONT, 10))
         highest = max(max(values) for _, values in series) * 1.12 or 1
 
         # Siatka z opisem osi pionowej.
@@ -1003,7 +1082,7 @@ class App(tk.Tk):
             canvas.create_text(left - 10, y, text=f"{highest * (1 - i / 4):,.0f}".replace(",", " "),
                                anchor="e", fill=MUTED, font=(FONT, 10))
 
-        # Linie rysujemy od końca, żeby niebieska (wariant) leżała na wierzchu.
+        # Linie rysujemy od końca, żeby pierwsza z wybranych (wariant) leżała na wierzchu.
         count = len(self.rows)
         for color, values in reversed(series):
             points = []

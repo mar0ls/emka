@@ -47,3 +47,26 @@ HELP = {
     "indexed": "Zaznaczone: początkowa kwota własnego dodatku będzie rosła według zadanej waloryzacji marcowej. Odznaczone: kwota pozostaje stała nominalnie we wszystkich latach.",
     "enabled": "Włącz lub wyłącz pozycję bez jej usuwania. Wyłączony dodatek nie wpływa na wynik ani wykres, ale pozostaje zapisany w profilu.",
 }
+
+# Kolumny tabeli symulacji: (nazwa nagłówka, opis pokazywany po najechaniu myszą).
+# Te same nazwy trafiają do CSV i raportu. "mies." oznacza miesięczną kwotę z grudnia danego roku.
+FORECAST_COLUMNS = (
+    ("Rok", "Rok kalendarzowy symulacji. Pierwszy rok bywa niepełny: wypłaty liczone są od następnego pełnego miesiąca po zwolnieniu ze służby."),
+    ("Waloryzacja %", "Waloryzacja zastosowana w tym roku od 1 marca (Twoje założenie z zakładki Symulacja albo wyjątek dla tego roku). 0 oznacza, że w tym roku emerytura nie była waloryzowana, np. gdy prawo do niej ustalono po 1 marca."),
+    ("Wariant (mies.)", "Miesięczna emerytura brutto w grudniu tego roku RAZEM z własnymi dodatkami z zakładki „Dodatki”. Bez dodatków jest równa kolumnie „Ustawa (mies.)”."),
+    ("Ustawa (mies.)", "Miesięczna emerytura brutto w grudniu tego roku wyliczona wyłącznie z reguł ustawy, bez własnych dodatków."),
+    ("Wartość realna", "Kwota z kolumny „Wariant (mies.)” przeliczona na ceny z początku pierwszego roku symulacji, przy założonej inflacji. Pokazuje, ile za tę emeryturę kupisz w dzisiejszych pieniądzach. Gdy inflacja przewyższa waloryzację, wartość realna maleje."),
+    ("Netto (mies.)", "Miesięczna emerytura z grudnia po odjęciu składki zdrowotnej 9% i zaliczki na PIT (bez dorabiania). To kwota „na rękę” z kolumny „Wariant (mies.)”."),
+    ("Wypłacone w roku", "Suma brutto faktycznie wypłacona w tym roku kalendarzowym: tylko miesiące, w których emerytura jest wypłacana, styczeń i luty przed waloryzacją, marzec–grudzień po niej."),
+    ("Wypłacone razem", "Suma kolumny „Wypłacone w roku” od początku symulacji do końca tego roku (brutto, w cenach z danego okresu, bez przeliczania na wartość realną)."),
+)
+
+# Tabela „Jak zmienia się emerytura w zależności od przychodu” (zakładka Netto i dorabianie).
+EARNINGS_COLUMNS = (
+    ("Przychód z pracy", "Miesięczny przychód brutto z pracy w cywilnej firmie. Wiersze to: próg 70%, środek strefy zmniejszeń, próg 130% oraz kwota tuż powyżej tego progu."),
+    ("Zmniejszenie", "O ile miesięcznie spadnie emerytura brutto przy takim przychodzie."),
+    ("Emerytura brutto", "Emerytura brutto po zmniejszeniu."),
+    ("Emerytura netto", "Emerytura po zmniejszeniu, po odjęciu składki zdrowotnej 9% i zaliczki na PIT."),
+)
+
+# Wykres: których linii dotyczą pola wyboru - patrz CHART_SERIES w gui.py.

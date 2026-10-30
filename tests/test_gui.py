@@ -121,6 +121,36 @@ class GuiTests(unittest.TestCase):
         self.assertTrue(self.app.law_text.tag_ranges("link"))
         self.assertTrue(self.app.law_text.tag_ranges("h2"))
 
+    def test_forecast_headings_have_descriptions(self):
+        from emka.helptext import FORECAST_COLUMNS
+        headings = [self.app.forecast_tree.heading(c, "text") for c in self.app.forecast_tree["columns"]]
+        self.assertEqual(headings, [name for name, _ in FORECAST_COLUMNS])
+        help_ = self.app.forecast_help
+        self.assertIn("ceny", help_.column_text("#5"))  # Wartość realna
+        self.assertEqual(help_.column_text("#0"), "")
+        self.assertEqual(help_.column_text(""), "")
+        self.assertEqual(help_.column_text("#99"), "")
+        help_.show_at(help_.column_text("#3"), 100, 100, 100)
+        self.assertIsNotNone(help_.window)
+        help_.hide()
+        self.assertIsNone(help_.window)
+
+    def test_earnings_headings_have_descriptions(self):
+        self.assertIn("składki zdrowotnej", self.app.earn_help.column_text("#4"))
+
+    def test_chart_lines_can_be_toggled(self):
+        self.app.update()
+        items_default = len(self.app.chart.find_all())
+        for variable in self.app.chart_vars.values():
+            variable.set(False)
+        self.assertLess(len(self.app.chart.find_all()), items_default)  # tylko komunikat
+        self.assertTrue(any("Zaznacz" in str(self.app.chart.itemcget(i, "text"))
+                            for i in self.app.chart.find_all() if self.app.chart.type(i) == "text"))
+        self.app.chart_vars["net_december"].set(True)
+        self.assertGreater(len(self.app.chart.find_all()), 5)
+        # Zmiana wykresu nie unieważnia wyniku (to nie dane profilu).
+        self.assertIsNotNone(self.app.result)
+
     def test_icon_is_loaded(self):
         from emka.gui import ICON_PATH
         self.assertTrue(ICON_PATH.exists())

@@ -7,6 +7,7 @@ import json
 from dataclasses import asdict, fields
 from pathlib import Path
 
+from .helptext import FORECAST_COLUMNS
 from .engine import (AnnualPay, Bonus, Extra, Profile, RULE_DATE, calculate, earnings_effect, earnings_table,
                      forecast, net_pension, service_rules)
 
@@ -86,9 +87,8 @@ def _polish_number(value):
 
 def export_csv(path, profile, result):
     """Zapisuje symulację do CSV (separator `;`, UTF-8 z BOM - tak otwiera go polski Excel)."""
-    header = ("Rok", "Wzrost %", "Inflacja %", "Przed marcową waloryzacją brutto",
-              "Grudzień brutto wariantu", "Grudzień z reguł ustawy", "Grudzień realnie",
-              "Grudzień netto", "Wypłaty roczne brutto", "Suma brutto")
+    names = [name for name, _ in FORECAST_COLUMNS]  # Rok, Waloryzacja %, Wariant, Ustawa, Realna, Netto, Rocznie, Razem
+    header = (names[0], names[1], "Inflacja %", "Przed marcową waloryzacją (mies.)", *names[2:])
     with open(path, "w", newline="", encoding="utf-8-sig") as file:
         writer = csv.writer(file, delimiter=";")
         writer.writerow(header)
@@ -149,7 +149,8 @@ def report(p, r):
         "- Wypłaty od następnego pełnego miesiąca po zwolnieniu, nie wcześniej niż w miesiącu ustalenia prawa; bez wyrównań.",
         "- Własne dodatki poza limitami są hipotetyczne. Prognoza zakłada niezmienność prawa.",
         "", "## Waloryzacja — scenariusz użytkownika", "",
-        "| Rok | Wzrost % | Inflacja % | Grudzień wariantu | Grudzień ustawa | Realnie | Netto | Rocznie | Narastająco |",
+        "| " + " | ".join([FORECAST_COLUMNS[0][0], FORECAST_COLUMNS[1][0], "Inflacja %"]
+                           + [name for name, _ in FORECAST_COLUMNS[2:]]) + " |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in forecast(p, r):
@@ -157,6 +158,8 @@ def report(p, r):
                      f"{row.legal_december:.2f} | {row.real_december:.2f} | {row.net_december:.2f} | "
                      f"{row.annual:.2f} | {row.cumulative:.2f} |")
 
+    lines += ["", "Objaśnienie kolumn (mies. = kwota miesięczna z grudnia danego roku):", ""]
+    lines += [f"- **{name}** — {description}" for name, description in FORECAST_COLUMNS]
     lines += [
         "", "## Przepisy wybranej służby i systemu", "", service_rules(p),
         "", "## Źródła", "",

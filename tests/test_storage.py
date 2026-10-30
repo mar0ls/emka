@@ -38,13 +38,14 @@ class StorageTests(unittest.TestCase):
             self.assertTrue(path.read_bytes().startswith(b"\xef\xbb\xbf"))
             lines = path.read_text(encoding="utf-8-sig").splitlines()
             self.assertEqual(len(lines), 21)
-            self.assertIn("Grudzień netto", lines[0])
+            self.assertIn("Netto (mies.)", lines[0])
         document = report(p, r)
         self.assertIn("6816.67", document)
         self.assertIn("Pełna konfiguracja", document)
         self.assertIn("## Emerytura netto", document)
         self.assertIn("## Dorabianie w cywilnej firmie", document)
         self.assertIn("eli.gov.pl", document)
+        self.assertIn("**Wartość realna** —", document)
 
 
 if __name__ == "__main__":
