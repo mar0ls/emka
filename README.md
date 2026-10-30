@@ -4,7 +4,7 @@ Lokalna aplikacja okienkowa w Pythonie do szacowania emerytury brutto polskich f
 
 ## Uruchomienie
 
-**macOS:** dwuklik `Uruchom.command` albo `./run.sh` w katalogu projektu. Na tym komputerze skrypt wykrywa również dostarczony z Codex Python z Tk, ponieważ systemowy Python Homebrew nie ma modułu `_tkinter`.
+**macOS:** dwuklik `Uruchom.command` albo `./run.sh` w katalogu projektu. Skrypt szuka Pythona z Tk (kolejno: `EMKA_PYTHON`, `.venv`, `python3`, `python3.13`–`python3.10`); Python z Homebrew często nie ma modułu `_tkinter`, wtedy użyj wersji z python.org.
 
 **Windows:** Python 3.10+ z zaznaczoną obsługą Tcl/Tk i launcherem `py`; dwuklik `Uruchom.bat`.
 
@@ -42,6 +42,23 @@ Opcjonalna instalacja jako pakiet: `python3 -m pip install .`, następnie `emka`
 6. Dodaj wynik do porównania, zmień dane, dodaj następny. Dwuklik wariantu przywraca jego konfigurację. Porównanie trwa przez bieżącą sesję; **zapisuj poszczególne profile JSON**, aby zachować je na później.
 
 Zmiana danych unieważnia poprzedni wynik, aby uniknąć eksportu nieaktualnych obliczeń. Wszystkie eksporty przeliczają profil przed zapisem. Ctrl/Cmd+S otwiera zapis profilu. JSON zapisuje całą konfigurację; traktuj go jak własny dokument finansowy. W katalogu `examples/` znajdują się fikcyjne profile do wypróbowania.
+
+## Budowanie samodzielnego programu
+
+`make mac`, `make win`, `make linux` albo `make all` (bez argumentów: `make` pokazuje pomoc). Wynik trafia do `dist/`: `EMKA.app` i zip (macOS), `EMKA-<wersja>-windows.exe`, `EMKA-<wersja>-linux-<arch>`. Każdy plik po zbudowaniu przechodzi `--self-test` (otwiera okno bez wyświetlania, liczy profil, sprawdza dane i ikonę). Wymagania: Python 3.10+ z Tk, `make` i internet przy pierwszym budowaniu (tworzy `.build-venv/` z PyInstallerem).
+
+PyInstaller nie buduje krzyżowo, więc plik dla danego systemu powstaje na tym systemie:
+
+| Polecenie | Gdzie działa |
+|---|---|
+| `make mac` | tylko macOS (aplikacja jest dla architektury komputera: arm64 lub x86_64, niepodpisana — przy pierwszym uruchomieniu: prawy przycisk → Otwórz) |
+| `make win` lub `python tools/build.py` | tylko Windows — **nie testowano** |
+| `make linux` | Linux natywnie, a na innym systemie przez Docker (`make linux DOCKER_PLATFORM=linux/amd64` wymusza x86_64) |
+| `make all` | to, co da się zbudować na tym komputerze; resztę pomija z komunikatem |
+
+Bez `make` (np. na Windows): `python tools/build.py` buduje dla systemu, na którym go uruchomisz (ten sam skrypt używa `make` i CI).
+
+Aby dostać wszystkie trzy pliki naraz, wypchnij tag `v*` do repozytorium z runnerami Windows/macOS/Linux: `.github/workflows/build.yml` (GitHub albo Gitea Actions, jeszcze nieuruchamiany) zbuduje je równolegle. Dla Gitei jest osobny plik `.gitea/workflows/build.yml` (etykiety runnerów opisane w komentarzu; Windows wymaga runnera na hoście Windows). Binarka Linuksa wymaga biblioteki glibc nie starszej niż w systemie budowania (Docker: Debian bookworm).
 
 ## Przepisy i ograniczenia
 

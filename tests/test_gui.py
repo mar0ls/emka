@@ -113,6 +113,14 @@ class GuiTests(unittest.TestCase):
         self.assertIn("989,41", self.app.work_label.cget("text"))
         self.assertIn("zmniejszona o", self.app.earn_summary.cget("text"))
 
+    def test_law_tab_renders_markdown(self):
+        text = self.app.law_text.get("1.0", "end")
+        self.assertIn("EMKA — analiza przepisów", text)
+        for raw in ("**", "## ", "](http"):
+            self.assertNotIn(raw, text)
+        self.assertTrue(self.app.law_text.tag_ranges("link"))
+        self.assertTrue(self.app.law_text.tag_ranges("h2"))
+
     def test_icon_is_loaded(self):
         from emka.gui import ICON_PATH
         self.assertTrue(ICON_PATH.exists())

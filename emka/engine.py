@@ -45,6 +45,7 @@ INCOME_LIMIT_LOW = Decimal("6463.20")  # 70% przeciętnego wynagrodzenia
 INCOME_LIMIT_HIGH = Decimal("12003.10")  # 130% przeciętnego wynagrodzenia
 MAX_REDUCTION = Decimal("989.41")
 INCOME_LIMITS_VALID_TO = date(2026, 11, 30)
+MAX_REDUCTION_VALID_TO = date(2027, 2, 28)  # kolejna waloryzacja od 1.03.2027
 MAX_REDUCTION_SHARE = Decimal("0.25")  # art. 41 ust. 1 i 3: nigdy więcej niż 25% emerytury
 FULL_PENSION_PERCENT = Decimal(75)  # art. 41 ust. 4: przy 75% podstawy zmniejszeń nie stosuje się
 
@@ -744,8 +745,11 @@ def _earnings_limits(p):
     return low, high, max_reduction
 
 
-def earnings_effect(p, result):
-    """Ile emerytury traci emeryt dorabiający w cywilnej firmie. Zwraca None, gdy emerytura nie przysługuje."""
+def earnings_effect(p, result, today=None):
+    """Ile emerytury traci emeryt dorabiający w cywilnej firmie. Zwraca None, gdy emerytura nie przysługuje.
+
+    `today` służy tylko do testów (domyślnie dzisiejsza data).
+    """
     if not result.eligible:
         return None
     income = number(p.work_income, "Przychód z pracy")
@@ -757,9 +761,14 @@ def earnings_effect(p, result):
                 "(umowa o pracę, zlecenie, własna firma). Umowa o dzieło zwykle nie wlicza się."]
     if exempt:
         warnings.append("Emerytura wynosi co najmniej 75% podstawy — dorabiać można bez zmniejszeń (art. 41 ust. 4).")
-    if date.today() > INCOME_LIMITS_VALID_TO:
+    # Ostrzegamy tylko wtedy, gdy po terminie w polach nadal stoją wartości domyślne - czyli nikt ich nie zaktualizował.
+    today = today or date.today()
+    if today > INCOME_LIMITS_VALID_TO and (low, high) == (INCOME_LIMIT_LOW, INCOME_LIMIT_HIGH):
         warnings.append(f"Progi przychodu obowiązywały do {INCOME_LIMITS_VALID_TO:%d.%m.%Y}. "
-                        "Sprawdź aktualny komunikat Prezesa ZUS i zmień wartości.")
+                        "Sprawdź aktualny komunikat Prezesa ZUS (Monitor Polski) i wpisz nowe wartości.")
+    if today > MAX_REDUCTION_VALID_TO and max_reduction == MAX_REDUCTION:
+        warnings.append(f"Kwota maksymalnego zmniejszenia obowiązywała do {MAX_REDUCTION_VALID_TO:%d.%m.%Y}. "
+                        "Sprawdź aktualny komunikat Prezesa ZUS i wpisz nową kwotę.")
     if not exempt and zone != "below":
         # Skok przy progu 130%: tuż poniżej obowiązuje kwota maksymalna, powyżej - stałe 25% emerytury.
         just_below = reduction_for(high, result.pension, low, high, max_reduction)[1]

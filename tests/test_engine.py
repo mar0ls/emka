@@ -341,6 +341,18 @@ class EarningsTests(unittest.TestCase):
         full = replace(p, first_entry="1990-01-01", service_months=420, qualifying_25_months=420)
         self.assertNotIn("130%", " ".join(earnings_effect(full, calculate(full)).warnings))
 
+    def test_stale_limits_warning_only_when_not_updated(self):
+        p = replace(Profile(), work_income="9000")
+        result = calculate(p)
+        after_deadline = date(2026, 12, 5)
+        self.assertIn("obowiązywały do 30.11.2026", " ".join(earnings_effect(p, result, after_deadline).warnings))
+        self.assertNotIn("obowiązywały", " ".join(earnings_effect(p, result, date(2026, 11, 30)).warnings))
+        updated = replace(p, income_limit_low="6500.00", income_limit_high="12100.00")
+        self.assertNotIn("Progi przychodu obowiązywały", " ".join(earnings_effect(updated, result, after_deadline).warnings))
+        # Kwota maksymalna wygasa dopiero przy marcowej waloryzacji.
+        self.assertNotIn("maksymalnego zmniejszenia obowiązywała", " ".join(earnings_effect(p, result, after_deadline).warnings))
+        self.assertIn("maksymalnego zmniejszenia obowiązywała", " ".join(earnings_effect(p, result, date(2027, 3, 2)).warnings))
+
     def test_no_effect_without_entitlement(self):
         p = replace(Profile(), service_months=100, qualifying_25_months=100, work_income="9000")
         self.assertIsNone(earnings_effect(p, calculate(p)))

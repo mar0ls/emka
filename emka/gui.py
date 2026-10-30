@@ -1,5 +1,6 @@
 """Okienkowy interfejs (Tk/ttk). Wszystkie dane zostają na komputerze użytkownika."""
 import copy
+import re
 import textwrap
 import tkinter as tk
 import webbrowser
@@ -126,10 +127,11 @@ class Editor(tk.Toplevel):
         self.title(title)
         self.transient(parent)
         self.resizable(False, False)
+        self.configure(bg="white")
         self.on_accept = on_accept
         self.variables = {}
 
-        body = ttk.Frame(self, padding=22)
+        body = ttk.Frame(self, padding=22, style="White.TFrame")
         body.pack(fill="both", expand=True)
         first_input = None
         for key, label, options in specs:
@@ -168,6 +170,63 @@ class Editor(tk.Toplevel):
             self.error.configure(text=str(exc))
             return
         self.destroy()
+
+
+INLINE_MARKDOWN = re.compile(r"(\*\*.+?\*\*|\[[^\]]+\]\(https?://[^)\s]+\))")
+LINK_MARKDOWN = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
+
+
+def show_markdown(widget, markdown):
+    """Wstawia do pola Text prosty Markdown: nagłówki, pogrubienia, linki, listy i tabele.
+
+    Dzięki temu zakładka „Przepisy” nie pokazuje surowych znaczników (`**`, `##`, `[tekst](adres)`).
+    """
+    widget.tag_configure("h1", font=(FONT, 18, "bold"), spacing1=4, spacing3=8)
+    widget.tag_configure("h2", font=(FONT, 14, "bold"), foreground=ACCENT, spacing1=16, spacing3=4)
+    widget.tag_configure("bold", font=(FONT, 12, "bold"))
+    widget.tag_configure("link", foreground=ACCENT, underline=True)
+    widget.tag_configure("row", lmargin1=12, lmargin2=12, spacing1=3, background="#f5f8fc")
+
+    def insert_inline(text, *tags):
+        for part in INLINE_MARKDOWN.split(text):
+            if not part:
+                continue
+            link = LINK_MARKDOWN.fullmatch(part)
+            if part.startswith("**") and part.endswith("**"):
+                widget.insert("end", part[2:-2], tags + ("bold",))
+            elif link:
+                label, url = link.groups()
+                tag = f"link-{widget.index('end')}"
+                widget.insert("end", label, tags + ("link", tag))
+                widget.tag_bind(tag, "<Button-1>", lambda e, target=url: webbrowser.open(target))
+                widget.tag_bind(tag, "<Enter>", lambda e: widget.configure(cursor="hand2"))
+                widget.tag_bind(tag, "<Leave>", lambda e: widget.configure(cursor=""))
+            else:
+                widget.insert("end", part, tags)
+
+    table_header_next = True
+    for line in markdown.splitlines():
+        if not line.startswith("|"):
+            table_header_next = True
+        if line.startswith("# "):
+            insert_inline(line[2:], "h1")
+        elif line.startswith("## "):
+            insert_inline(line[3:], "h2")
+        elif line.startswith("|"):
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            if all(set(cell) <= set("-:") for cell in cells):  # linia |---|---|
+                continue
+            for i, cell in enumerate(cells):
+                if i:
+                    widget.insert("end", "   │   ", "row")
+                insert_inline(cell, "row", *(("bold",) if table_header_next else ()))
+            table_header_next = False
+        elif line.startswith("- "):
+            widget.insert("end", "•  ")
+            insert_inline(line[2:])
+        else:
+            insert_inline(line)
+        widget.insert("end", "\n")
 
 
 # Walidacja pozycji z tabel - zgłasza ValueError z czytelnym komunikatem.
@@ -306,7 +365,8 @@ class App(tk.Tk):
         self.work_label = ttk.Label(side, text="", wraplength=285, foreground=ERROR_FG)
         self.work_label.pack(anchor="w")
         self.result_text = ScrolledText(side, width=30, height=18, wrap="word", font=(FONT, 11), bg="white",
-                                        fg=INK, relief="flat", borderwidth=0, state="disabled")
+                                        fg=INK, relief="flat", borderwidth=0, highlightthickness=0,
+                                        state="disabled")
         self.result_text.pack(fill="both", expand=True, pady=10)
         ttk.Button(side, text="Dodaj wynik do porównania", command=self.add_snapshot).pack(fill="x", pady=(10, 0))
 
@@ -615,11 +675,11 @@ class App(tk.Tk):
                      "warunki wejściowe, algorytm i przypadki, które wymagają indywidualnej analizy.")
         ttk.Button(f, text="Otwórz urzędowy tekst ustawy ↗",
                    command=lambda: webbrowser.open(LAW_URL)).pack(anchor="w", pady=(0, 12))
-        text = ScrolledText(f, wrap="word", width=75, height=36, bg="white", fg=INK, font=(FONT, 12),
-                            relief="flat", padx=8, pady=8)
-        text.pack(fill="both", expand=True)
-        text.insert("1.0", Path(__file__).with_name("PRZEPISY.md").read_text(encoding="utf-8"))
-        text.configure(state="disabled")
+        self.law_text = ScrolledText(f, wrap="word", width=75, height=36, bg="white", fg=INK, font=(FONT, 12),
+                                     relief="flat", borderwidth=0, highlightthickness=0, padx=8, pady=8)
+        self.law_text.pack(fill="both", expand=True)
+        show_markdown(self.law_text, Path(__file__).with_name("PRZEPISY.md").read_text(encoding="utf-8"))
+        self.law_text.configure(state="disabled")
 
     # ------------------------------------------------- edycja tabel (okna „Dodaj”)
 

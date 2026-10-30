@@ -1,0 +1,58 @@
+# Gitea Actions - budowanie EMKA. NIE BYŁO JESZCZE URUCHAMIANE na prawdziwej instancji Gitea.
+#
+# W Gitei etykiety w `runs-on` to nazwy etykiet zarejestrowanych runnerów (act_runner), a nie systemy "-latest".
+# Zarejestruj runnery tak, aby pasowały do poniższych etykiet, np.:
+#   act_runner register --instance https://TWOJA-GITEA --token TOKEN \
+#       --labels "ubuntu-latest:docker://catthehacker/ubuntu:act-22.04"      # Linux, w kontenerze
+#   act_runner register ... --labels "macos:host"                            # na Macu: wymaga Pythona z Tk
+#   act_runner register ... --labels "windows:host"                          # na Windows (wymaga hosta Windows!)
+# Zadanie bez pasującego runnera po prostu czeka w kolejce - pozostałe zadania i tak się wykonają.
+#
+# Uruchamia się po wypchnięciu tagu v* albo ręcznie (zakładka Actions). Plik .github/workflows/build.yml jest dla GitHuba.
+name: build
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+# Uwaga: upload-artifact@v3 jest celowe - Gitea nie obsługuje wersji v4 (na GitHubie v3 jest już przestarzałe,
+# stąd osobny plik dla GitHuba). Jeśli Twoja wersja Gitei obsługuje v4, możesz podnieść wersję.
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zależności systemowe
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update && apt-get install -y python3 python3-tk python3-venv xvfb
+      - run: python3 -m unittest discover -s tests
+      - name: Budowanie i self-test (wirtualny ekran)
+        run: xvfb-run -a python3 tools/build.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: EMKA-linux
+          path: dist/EMKA-*
+
+  macos:
+    runs-on: macos
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s tests
+      - run: python3 tools/build.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: EMKA-macos
+          path: dist/EMKA-*
+
+  windows:
+    runs-on: windows
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m unittest discover -s tests
+      - run: python tools/build.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: EMKA-windows
+          path: dist/EMKA-*

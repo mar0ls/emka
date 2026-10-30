@@ -16,10 +16,8 @@ DOCKER_PLATFORM ?=
 
 ifeq ($(OS),Windows_NT)
 HOST := win
-VENV_PY := .build-venv/Scripts/python.exe
 PYTHON ?= python
 else
-VENV_PY := .build-venv/bin/python
 PYTHON ?= $(shell tools/find_python.sh 2>/dev/null)
 ifeq ($(shell uname -s),Darwin)
 HOST := mac
@@ -28,10 +26,8 @@ HOST := linux
 endif
 endif
 
-PYINSTALLER = $(VENV_PY) -m PyInstaller --noconfirm --clean --distpath dist --workpath build tools/EMKA.spec
-
 .DEFAULT_GOAL := help
-.PHONY: help all mac win linux test clean distclean
+.PHONY: help all mac win linux test check-python clean distclean
 
 help:
 	@echo "EMKA $(VERSION) - budowanie programu wykonywalnego"
@@ -45,21 +41,16 @@ help:
 	@echo ""
 	@echo "Ten komputer: $(HOST).  Python: $(if $(PYTHON),$(PYTHON),NIE ZNALEZIONO - ustaw PYTHON=/sciezka/do/python3)"
 
-# Środowisko wirtualne z PyInstallerem (tworzone raz; wymaga internetu). Python musi mieć Tk.
-$(VENV_PY):
+check-python:
 	@test -n "$(PYTHON)" || { echo "Nie znaleziono Pythona 3.10+ z Tk. Wskaż go: make $(HOST) PYTHON=/sciezka/do/python3"; exit 1; }
-	$(PYTHON) -m venv .build-venv
-	$(VENV_PY) -m pip install --quiet --upgrade pip pyinstaller
 
-test:
+test: check-python
 	@test -n "$(PYTHON)" || { echo "Nie znaleziono Pythona. Ustaw PYTHON=..."; exit 1; }
 	$(PYTHON) -m unittest discover -s tests
 
 ifeq ($(HOST),mac)
-mac: $(VENV_PY)
-	$(PYINSTALLER)
-	sh tools/package.sh mac
-	dist/EMKA.app/Contents/MacOS/EMKA --self-test
+mac: check-python
+	$(PYTHON) tools/build.py
 else
 mac:
 	@echo "make mac: aplikację macOS można zbudować tylko na macOS (ten komputer: $(HOST))."
@@ -68,10 +59,8 @@ mac:
 endif
 
 ifeq ($(HOST),win)
-win: $(VENV_PY)
-	$(PYINSTALLER)
-	sh tools/package.sh win
-	dist/EMKA-$(VERSION)-windows.exe --self-test
+win: check-python
+	$(PYTHON) tools/build.py
 else
 win:
 	@echo "make win: plik .exe można zbudować tylko na Windows (ten komputer: $(HOST))."
@@ -80,17 +69,15 @@ win:
 endif
 
 ifeq ($(HOST),linux)
-linux: $(VENV_PY)
-	$(PYINSTALLER)
-	sh tools/package.sh linux
-	@if [ -n "$$DISPLAY" ]; then dist/EMKA-$(VERSION)-linux-$(ARCH) --self-test; else echo "Pominięto self-test: brak wyświetlacza (DISPLAY). Użyj xvfb-run."; fi
+linux: check-python
+	$(PYTHON) tools/build.py
 else
 linux:
 	@command -v docker >/dev/null 2>&1 || { echo "make linux: na systemie $(HOST) potrzebny jest Docker (albo zbuduj na Linuksie)."; exit 1; }
 	@docker info >/dev/null 2>&1 || { echo "make linux: Docker jest zainstalowany, ale nie działa. Uruchom Docker Desktop."; exit 1; }
 	docker run --rm $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM)) --user "$$(id -u):$$(id -g)" -e HOME=/tmp \
 		-v "$(CURDIR)":/src -w /src $(DOCKER_IMAGE) \
-		sh -c "python -m pip install --quiet --user pyinstaller && python -m PyInstaller --noconfirm --clean --distpath dist --workpath /tmp/build tools/EMKA.spec && sh tools/package.sh linux"
+		sh -c "python -m pip install --quiet --user pyinstaller && python tools/build.py --current-python --skip-self-test --workpath /tmp/build"
 	@echo "Self-test w kontenerze z wirtualnym ekranem (xvfb)..."
 	docker run --rm $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM)) -v "$(CURDIR)/dist":/dist $(DOCKER_IMAGE) \
 		sh -c 'apt-get update -qq >/dev/null && apt-get install -y -qq xvfb >/dev/null 2>&1 && xvfb-run -a "$$(ls -t /dist/EMKA-*-linux-* | head -1)" --self-test'

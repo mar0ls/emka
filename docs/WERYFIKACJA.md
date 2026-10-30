@@ -46,10 +46,12 @@ Nie znaleziono błędu w wzorach ani progach. Znaleziono i poprawiono natomiast:
 
 ## Testy
 
-- **88 testów kończy się powodzeniem**, w tym 14 testów komponentów GUI w natywnej sesji graficznej macOS (Python 3.12 i Tk 9).
+- **91 testów kończy się powodzeniem**, w tym 15 testów komponentów GUI w natywnej sesji graficznej macOS (Python 3.12 i Tk 9).
 - Różnicowy test starego i nowego silnika na 20 000 losowych profili: wyniki liczbowe identyczne we wszystkich przypadkach, które oba silniki liczą; różnią się tylko komunikaty błędów i 18 przypadków, w których nowa, dokładniejsza walidacja dat odrzuca zawyżoną wysługę.
 - Testy obejmują granice dat 1/2.01.1999 i 2012/2013, fakultatywne art. 15aa/18h, progi 15/25 lat, pełne miesiące, okresy cywilne, limity, Medal, inwalidztwo, zbieg podwyższeń, metodę podstawy z 10 lat, minimum/FUS, własne dodatki, marcową waloryzację, inflację, roczne wskaźniki, formaty dat, profile JSON i eksporty.
 - Wizualnej inspekcji okna (zrzutów ekranu) nie wykonano. Testów Windows i Linux nie wykonano; programu nie instaluje zależności systemowych (wymaga Pythona 3.10+ z Tk).
+
+Budowanie plików wykonywalnych (PyInstaller 6, `make`): macOS arm64 zbudowany i przetestowany (`--self-test`), Linux x86_64 i aarch64 zbudowane w Dockerze (Debian bookworm) i przetestowane pod xvfb. **Windows nie był budowany ani testowany** - nie uruchamiano `make win` na Windows ani workflow CI.
 
 Powtórzenie pełnego zestawu w sesji graficznej:
 
