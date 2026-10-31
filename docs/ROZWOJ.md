@@ -87,7 +87,11 @@ Pliki nie są podpisane. Opisuje to README, a ryzyko [STRIDE.md](STRIDE.md).
 
 ## Kontrola przepisów
 
-Workflow `.github/workflows/przepisy.yml` uruchamia się 1. dnia każdego miesiąca (i ręcznie: Actions → przepisy → Run workflow). Skrypt `tools/check_law.py` pyta publiczne API ELI Sejmu o pięć aktów: ustawę mundurową, rozporządzenie o podwyższaniu emerytur, ustawę o FUS, ustawę o PIT i ustawę o świadczeniach zdrowotnych. Porównuje listę aktów zmieniających, wykonawczych i orzeczeń TK z zapisem w `tools/law-baseline.json`. Sprawdza też, czy nie wygasają terminy ważności kwot w `engine.py`.
+Workflow `.github/workflows/przepisy.yml` uruchamia się 1. dnia każdego miesiąca (i ręcznie: Actions → przepisy → Run workflow). Skrypt `tools/check_law.py` pyta publiczne API ELI Sejmu i porównuje wynik z zapisem w `tools/law-baseline.json`. Sprawdza trzy rzeczy:
+
+- **Akty.** Pięć aktów: ustawę mundurową, rozporządzenie o podwyższaniu emerytur, ustawę o FUS, ustawę o PIT i ustawę o świadczeniach zdrowotnych. Dla wszystkich porównuje listę aktów zmieniających z datami wejścia w życie. Dla ustawy mundurowej i rozporządzenia także akty wykonawcze, orzeczenia TK, datę modyfikacji w ELI oraz skrót SHA-256 tekstu ujednoliconego ustawy. Dzięki temu zmiana tekstu bez nowego aktu zmieniającego też zostanie zauważona. Dla FUS, PIT i ustawy zdrowotnej pomijamy tekst, bo zmienia się prawie co miesiąc i Issue byłoby zawsze otwarte.
+- **Komunikaty.** Nowe komunikaty z bieżącego roku w Monitorze Polskim o progach 70% i 130% (co kwartał), o najniższej emeryturze wraz z kwotami maksymalnych zmniejszeń oraz o wskaźniku waloryzacji (od marca).
+- **Terminy.** Czy nie wygasają daty ważności kwot w `engine.py` (z 30-dniowym wyprzedzeniem) i czy `RULE_DATE` nie jest starsza niż 100 dni.
 
 Gdy coś znajdzie, zakłada Issue z etykietą `przepisy` (a jeśli takie już jest otwarte, dopisuje komentarz). Workflow ma prawo tylko do zakładania Issue. Nie zmienia kodu i niczego nie wydaje, bo skutek zmiany w ustawie trzeba ocenić samemu.
 
@@ -97,7 +101,7 @@ Po przeczytaniu zmian i ewentualnych poprawkach zapisz nowy stan i zatwierdź go
 python3 tools/check_law.py --accept
 ```
 
-Skrypt nie wykrywa zmian w treści ustawy bez nowego aktu zmieniającego (np. korekty tekstu jednolitego) ani komunikatów o kwotach, które nie są w obserwowanych aktach, więc terminy kwot pilnuje osobno.
+Komunikaty wyszukuje po fragmencie tytułu (lista `NOTICES` w skrypcie). Jeśli urząd zmieni sformułowanie tytułu, trzeba poprawić fragment. Skrypt nie ocenia, czy zmiana wpływa na wynik programu, a o nowych kwotach informuje, ale ich nie wpisuje.
 
 ## Aktualizacja przepisów i kwot
 

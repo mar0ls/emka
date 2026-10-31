@@ -35,7 +35,7 @@ Dorabianie sprawdzono z art. 41 ustawy mundurowej i art. 104 ustawy o FUS (Dz.U.
 
 ## Testy
 
-Zestaw ma 137 testów. Lokalnie uruchomiono go na macOS z Pythonem 3.11.4 i Tk 8.6. Bez sesji graficznej 21 testów okien jest pomijanych, a pozostałe 116 przechodzi.
+Zestaw ma 146 testów. Lokalnie uruchomiono go na macOS z Pythonem 3.11.4 i Tk 8.6. Bez sesji graficznej 21 testów okien jest pomijanych, a pozostałe 125 przechodzi.
 
 Testy obejmują:
 

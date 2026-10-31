@@ -4,6 +4,7 @@
   "DU/1994/214": {
    "changeDate": "2026-09-17T00:00:00",
    "status": "akt posiada tekst jednolity",
+   "textHash": "a1f18c6dd2f932a8bec5d08ddf10aa71d21fe10478e9560396d7844e87954099",
    "references": {
     "Akty zmieniające": {
      "DU/2026/26": "2027-01-01",
@@ -231,6 +232,7 @@
   "DU/2005/734": {
    "changeDate": "2020-09-18T15:32:40",
    "status": "akt posiada tekst jednolity",
+   "textHash": null,
    "references": {
     "Akty zmieniające": {
      "DU/2019/1048": "2019-06-07",
@@ -248,6 +250,7 @@
   "DU/1998/887": {
    "changeDate": "2026-10-16T11:57:41",
    "status": "akt posiada tekst jednolity",
+   "textHash": null,
    "references": {
     "Akty zmieniające": {
      "DU/2026/734": "2026-06-20",
@@ -490,6 +493,7 @@
   "DU/1991/350": {
    "changeDate": "2026-10-21T00:00:00",
    "status": "akt posiada tekst jednolity",
+   "textHash": null,
    "references": {
     "Akty zmieniające": {
      "MP/1994/625": "1995-01-14",
@@ -950,6 +954,7 @@
   "DU/2004/2135": {
    "changeDate": "2026-10-27T00:00:00",
    "status": "akt posiada tekst jednolity",
+   "textHash": null,
    "references": {
     "Akty zmieniające": {
      "DU/2026/986": "2026-08-07",
@@ -1194,6 +1199,19 @@
      "DU/2005/1110": "2005-08-19"
     }
    }
+  }
+ },
+ "notices": {
+  "przychodu odpowiadających": {
+   "MP/2026/839": "Komunikat Prezesa Zakładu Ubezpieczeń Społecznych z dnia 18 sierpnia 2026 r. w sprawie kwot przychodu odpowiadających 70 % i 130 % przeciętnego miesięcznego wynagrodzenia ogłoszonego za II kwartał 2026 r. stosowanych przy zmniejszaniu albo ",
+   "MP/2026/499": "Komunikat Prezesa Zakładu Ubezpieczeń Społecznych z dnia 14 maja 2026 r. w sprawie kwot przychodu odpowiadających 70 % i 130 % przeciętnego miesięcznego wynagrodzenia ogłoszonego za I kwartał 2026 r. stosowanych przy zmniejszaniu albo zawie",
+   "MP/2026/209": "Komunikat Prezesa Zakładu Ubezpieczeń Społecznych z dnia 12 lutego 2026 r. w sprawie kwot przychodu odpowiadających 70 % i 130 % przeciętnego miesięcznego wynagrodzenia ogłoszonego za IV kwartał 2025 r. stosowanych przy zmniejszaniu albo za"
+  },
+  "najniższej emerytury": {
+   "MP/2026/220": "Komunikat Prezesa Zakładu Ubezpieczeń Społecznych z dnia 17 lutego 2026 r. w sprawie kwoty najniższej emerytury i renty, dodatku pielęgnacyjnego i dodatku dla sierot zupełnych, kwot maksymalnych zmniejszeń emerytur i rent oraz kwot emerytur"
+  },
+  "waloryzacji emerytur i rent": {
+   "MP/2026/202": "Komunikat Ministra Rodziny, Pracy i Polityki Społecznej z dnia 11 lutego 2026 r. w sprawie wskaźnika waloryzacji emerytur i rent w 2026 r."
   }
  }
 }
