@@ -25,6 +25,12 @@ class GuiTests(unittest.TestCase):
         self.app.snapshots = []
         self.app.refresh_comparison()
 
+    def test_disclaimer_always_visible_in_result_panel(self):
+        from emka.helptext import DISCLAIMER
+        self.assertEqual(self.app.disclaimer.cget("text"), DISCLAIMER)
+        self.app.calculate_show()
+        self.assertTrue(self.app.disclaimer.winfo_manager())
+
     def test_all_pages_created(self):
         self.assertEqual(len(self.app.notebook.tabs()), 8)
         self.assertEqual(len(self.app.forecast_tree.get_children()), 20)
@@ -90,6 +96,29 @@ class GuiTests(unittest.TestCase):
         self.app.show_snapshot_rules()
         self.assertIn("Państwowa Straż Pożarna", self.app.compare_rules.cget("text"))
 
+    def test_service_list_shows_full_names_but_stores_abbreviation(self):
+        self.app.vars["service"].set("SM")
+        displayed = [w for w in self._all_widgets(self.app) if hasattr(w, "display_var")]
+        self.assertEqual(displayed[0].display_var.get(), "SM — Straż Marszałkowska")
+        displayed[0].set("SG — Straż Graniczna")
+        displayed[0].event_generate("<<ComboboxSelected>>")
+        self.assertEqual(self.app.vars["service"].get(), "SG")
+
+    def _all_widgets(self, widget):
+        found = [widget]
+        for child in widget.winfo_children():
+            found += self._all_widgets(child)
+        return found
+
+    def test_tcl_special_characters_in_names_stay_plain_text(self):
+        """Nazwy z nawiasami, dolarem i cudzysłowem nie mogą być wykonane jako polecenia Tcl."""
+        from emka.engine import Profile
+        name = '[exit] {x} $y \\ "q" ;set a b'
+        self.app.fill_profile(Profile(extras=[Extra(name=name, value="1")]))
+        self.app.refresh_tables()
+        self.assertEqual(self.app.extra_tree.item("0", "values")[0], name)
+        self.assertTrue(self.app.winfo_exists())
+
     def test_months_hint_follows_dates(self):
         self.app.vars["first_entry"].set("01.01.2001")
         self.app.vars["release"].set("2026-10-31")
@@ -115,7 +144,7 @@ class GuiTests(unittest.TestCase):
 
     def test_law_tab_renders_markdown(self):
         text = self.app.law_text.get("1.0", "end")
-        self.assertIn("EMKA — analiza przepisów", text)
+        self.assertIn("EMKA: analiza przepisów", text)
         for raw in ("**", "## ", "](http"):
             self.assertNotIn(raw, text)
         self.assertTrue(self.app.law_text.tag_ranges("link"))

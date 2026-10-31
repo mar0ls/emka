@@ -1,4 +1,9 @@
 """Treści pomocy kontekstowej dla pól kalkulatora."""
+
+# Pokazywane w oknie i w raporcie. Wersja długa jest w README i w zakładce Przepisy.
+DISCLAIMER = ("Narzędzie poglądowe, nie oficjalny kalkulator. Wynik nie jest decyzją organu emerytalnego "
+              "ani poradą prawną; autor nie jest związany z MSWiA, ZUS ani żadną ze służb.")
+
 HELP = {
     "name": "Dowolna nazwa, np. „PSP — odejście w 2028”. Pojawi się w raporcie i porównaniu. Nie musisz wpisywać imienia ani danych osobowych.",
     "service": "Wybierz służbę, z której przechodzisz na emeryturę. Poniżej od razu zmienią się informacje o podstawie wymiaru, właściwym organie i szczególnych warunkach. Wcześniejsza służba wpływa też na datę pierwszego przyjęcia.",

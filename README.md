@@ -1,81 +1,154 @@
 # EMKA
 
-Lokalna aplikacja okienkowa w Pythonie do szacowania emerytury brutto polskich funkcjonariuszy i symulowania jej waloryzacji. GUI: Tk/ttk. Bez zewnętrznych bibliotek, serwera, konta i wysyłania danych.
+[![build](https://github.com/mar0ls/emka/actions/workflows/build.yml/badge.svg)](https://github.com/mar0ls/emka/actions/workflows/build.yml)
+[![tests](https://github.com/mar0ls/emka/actions/workflows/tests.yml/badge.svg)](https://github.com/mar0ls/emka/actions/workflows/tests.yml)
+[![wydanie](https://img.shields.io/github/v/release/mar0ls/emka?include_prereleases&label=wydanie)](https://github.com/mar0ls/emka/releases)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![platformy](https://img.shields.io/badge/platformy-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+[![licencja MIT](https://img.shields.io/badge/licencja-MIT-green)](LICENSE)
 
-## Uruchomienie
+EMKA to program na komputer, który szacuje emeryturę funkcjonariusza służb mundurowych (Policja, Straż Graniczna, PSP, ABW, AW, SKW, SWW, CBA, SOP, Służba Więzienna, Straż Marszałkowska, Służba Celna i Celno-Skarbowa) według ustawy z 18 lutego 1994 r. Pokazuje też, ile z tej kwoty zostanie po podatku i składce zdrowotnej, jak emerytura będzie rosła przez kolejne lata i o ile zmaleje, jeśli po odejściu ze służby będziesz dorabiać w cywilnej firmie.
 
-**macOS:** dwuklik `Uruchom.command` albo `./run.sh` w katalogu projektu. Skrypt szuka Pythona z Tk (kolejno: `EMKA_PYTHON`, `.venv`, `python3`, `python3.13`–`python3.10`); Python z Homebrew często nie ma modułu `_tkinter`, wtedy użyj wersji z python.org.
+Wszystko dzieje się na Twoim komputerze. Program nie ma konta, nie łączy się z internetem i niczego nie wysyła.
 
-**Windows:** Python 3.10+ z zaznaczoną obsługą Tcl/Tk i launcherem `py`; dwuklik `Uruchom.bat`.
+> **To narzędzie poglądowe, a nie oficjalny kalkulator.** Autor nie jest związany z MSWiA, ZER MSWiA, ZUS ani żadną ze służb, a program nie jest przez nie sprawdzany ani polecany. Wynik jest szacunkiem, nie decyzją organu emerytalnego ani poradą prawną. Program przyjmuje dane, które mu podasz, i nie sprawdza ich w dokumentach. O prawie do emerytury i jej wysokości decyduje wyłącznie organ emerytalny (dla większości służb ZER MSWiA). Przed decyzją o odejściu ze służby poproś go o oficjalne wyliczenie.
 
-**Linux:** Python 3.10+ z Tk i sesją graficzną, następnie `./run.sh`. W wielu dystrybucjach Tk jest osobnym pakietem systemowym.
+## Spis treści
 
-Ręcznie: `python3 -m emka`. Sprawdzenie Tk: `python3 -m tkinter`. Wskazanie konkretnego interpretera: `EMKA_PYTHON=/pełna/ścieżka/python3 ./run.sh`.
+1. [Pobranie i uruchomienie](#pobranie-i-uruchomienie)
+2. [Instrukcja krok po kroku](#instrukcja-krok-po-kroku)
+3. [Jak czytać wynik](#jak-czytać-wynik)
+4. [Czego program nie robi](#czego-program-nie-robi)
+5. [Najczęstsze problemy](#najczęstsze-problemy)
+6. [Dla programistów, licencja](#dla-programistów-i-licencja)
 
-Opcjonalna instalacja jako pakiet: `python3 -m pip install .`, następnie `emka`. Tk musi być dostępny w używanym interpreterze. Program startuje z **przykładowymi danymi**, które należy zastąpić swoimi.
+## Pobranie i uruchomienie
 
-## Możliwości
+### Gotowy program
 
-- Policja, SG, PSP, ABW, AW, SKW, SWW, CBA, SOP, SW, SM, SC i SCS.
-- Wybór reguł według pierwszego właściwego przyjęcia; art. 15, 15a, fakultatywny 15aa, 15d/15e, rozdział 1a oraz wybór art. 18h.
-- Pełne miesiące wysługi, okresy cywilne i odrębny warunek 25 lat do art. 15aa.
-- Gotowa podstawa, składniki ostatniego uposażenia albo wskaźnikowa podstawa z 10 kolejnych lat.
-- Potwierdzone podwyższenia roczne, strefa wojny, inwalidztwo związane ze służbą i Medal im. Andrzeja Struja; właściwe limity 75/76/80/81%.
-- Rozliczanie zbiegu podwyższeń w tych samych miesiącach; brak automatycznego sumowania.
-- Własne fakultatywne dodatki w pp podstawy, % emerytury lub zł miesięcznie; włączenie/wyłączenie i waloryzowanie osobno dla każdej pozycji.
-- Symulacja do 60 lat, domyślna waloryzacja i inflacja oraz różne wartości w wybranych latach; wykres z wyborem linii (wariant, ustawa, wartość realna, netto), kwoty realne, suma roczna z marcową waloryzacją i suma narastająca. Najedź myszą na nagłówek kolumny tabeli, aby zobaczyć, co oznacza (te same objaśnienia są w raporcie).
-- Porównanie niezależnych kopii scenariuszy, profile JSON, CSV otwierane z polskimi separatorami i raport Markdown z pełnymi danymi oraz założeniami.
-- **Emerytura netto:** składka zdrowotna 9% i zaliczka na PIT (12%/32%, z kwotą zmniejszającą 300 zł miesięcznie albo bez niej); netto także w symulacji, CSV i raporcie.
-- **Dorabianie w cywilnej firmie:** o ile zmniejszy się emerytura mundurowa przy danym przychodzie brutto (art. 41 ustawy i art. 104 ustawy o FUS): do 70% przeciętnego wynagrodzenia bez zmian, 70–130% o kwotę przekroczenia (nie więcej niż kwota maksymalna i 25% emerytury), powyżej 130% o 25%; emerytura równa 75% podstawy nie jest zmniejszana. Progi są edytowalne, bo ZUS zmienia je co kwartał.
-- Reguły i źródła dostępne bezpośrednio w zakładce „Przepisy”.
-- Chmurki przy polach, etykietach i przyciskach ⓘ: najedź myszą albo naciśnij F1 w aktywnym polu. Pomoc jest również w oknach dodawania pozycji.
-- Checkbox systemu: odznaczony = właściwe przyjęcie przed 1.01.2013 (15 lat / 40%); zaznaczony = od 1.01.2013 (25 lat / 60%) albo wybór art. 18h dla wcześniejszego przyjęcia. Zmiana daty automatycznie podpowiada właściwy system; program blokuje sprzeczne wybory.
-- Informacja o właściwych przepisach aktualizuje się po zmianie służby i systemu. W porównaniu każdy scenariusz zachowuje własną służbę, a zaznaczenie wiersza wyświetla jego reguły, podstawę wymiaru, organ i uwagi szczególne. Te informacje zawiera też raport.
+Wejdź na stronę Releases repozytorium ([github.com/mar0ls/emka](https://github.com/mar0ls/emka/releases)) i pobierz plik dla swojego systemu. Python nie jest potrzebny.
 
-## Jak używać
+| System | Plik | Jak uruchomić |
+|---|---|---|
+| Windows 10/11 (64-bitowy) | `EMKA-<wersja>-windows.exe` | Dwuklik. Przy pierwszym uruchomieniu Windows może pokazać „System Windows ochronił ten komputer”: kliknij Więcej informacji, potem Uruchom mimo to. |
+| macOS (Apple Silicon) | `EMKA-<wersja>-macos-arm64.zip` | Rozpakuj i przeciągnij `EMKA.app` do Programów. Przy pierwszym uruchomieniu kliknij aplikację prawym przyciskiem i wybierz Otwórz. Jeśli system i tak odmawia: Ustawienia systemowe → Prywatność i ochrona → Otwórz mimo to. |
+| Linux (x86_64, z graficznym pulpitem) | `EMKA-<wersja>-linux-x86_64` | W terminalu: `chmod +x EMKA-*-linux-x86_64`, potem `./EMKA-*-linux-x86_64`. |
 
-1. **Dane:** wybierz służbę, podaj daty (RRRR-MM-DD albo DD.MM.RRRR) i pełne miesiące z dokumentacji. Pod polem wysługi program pokazuje, ile pełnych miesięcy mieści się między datą przyjęcia a zwolnieniem; wpisanie większej liczby jest odrzucane. Pierwsze właściwe przyjęcie uwzględnia wcześniejszą służbę i wyjątki ustawowe. `auto` nie rozpoznaje samodzielnie historii personalnej.
-2. **Podstawa:** wybierz właściwy tryb. Wpisanie gotowej kwoty nie zastępuje ustalenia jej zgodnie z art. 5/18f. Dla SM/SC/SCS i rozdziału 1a obowiązuje metoda 10 lat.
-3. **Podwyższenia:** dodaj zaliczone okresy. Miesiące początku i końca są wliczane; strefa wojny obejmuje rozpoczęty miesiąc. Potwierdź, że jednostka zaliczyła okres po weryfikacji wymaganych norm.
-4. **Dodatki:** dodaj własne pozycje wariantu. Pokazywane są osobno od świadczenia obliczonego według reguł ustawy.
-5. **Symulacja:** ustaw wzrost w procentach, np. `4`, i inflację, np. `2,5`. Domyślne 4% i 2,5% są wyłącznie przykładem. Kliknij „Oblicz emeryturę” lub F5. Roczne wyjątki muszą mieścić się w horyzoncie.
-6. Dodaj wynik do porównania, zmień dane, dodaj następny. Dwuklik wariantu przywraca jego konfigurację. Porównanie trwa przez bieżącą sesję; **zapisuj poszczególne profile JSON**, aby zachować je na później.
+Pliki nie są podpisane cyfrowo (certyfikaty kosztują), dlatego systemy ostrzegają. Programy antywirusowe mogą też czasem zgłosić fałszywy alarm przy plikach z PyInstallera. Jeśli wolisz mieć pewność, że plik jest taki, jaki wyszedł z budowania, sprawdź jego sumę kontrolną:
 
-Zmiana danych unieważnia poprzedni wynik, aby uniknąć eksportu nieaktualnych obliczeń. Wszystkie eksporty przeliczają profil przed zapisem. Ctrl/Cmd+S otwiera zapis profilu. JSON zapisuje całą konfigurację; traktuj go jak własny dokument finansowy. W katalogu `examples/` znajdują się fikcyjne profile do wypróbowania.
+- Windows (PowerShell): `Get-FileHash .\EMKA-0.1.0-windows.exe -Algorithm SHA256`
+- macOS: `shasum -a 256 EMKA-0.1.0-macos-arm64.zip`
+- Linux: `sha256sum EMKA-0.1.0-linux-x86_64`
 
-## Budowanie samodzielnego programu
+Wynik musi być taki sam jak odpowiednia linia w pliku `SHA256SUMS` dołączonym do wydania. Wersja dla Windows jest sprawdzana tylko automatycznie przy budowaniu (test uruchomienia), nie na prawdziwym komputerze, więc jeśli coś nie działa, daj znać. Dla Maców z procesorem Intel nie ma gotowego pliku: uruchom program z kodu źródłowego.
 
-`make mac`, `make win`, `make linux` albo `make all` (bez argumentów: `make` pokazuje pomoc). Wynik trafia do `dist/`: `EMKA.app` i zip (macOS), `EMKA-<wersja>-windows.exe`, `EMKA-<wersja>-linux-<arch>`. Każdy plik po zbudowaniu przechodzi `--self-test` (otwiera okno bez wyświetlania, liczy profil, sprawdza dane i ikonę). Wymagania: Python 3.10+ z Tk, `make` i internet przy pierwszym budowaniu (tworzy `.build-venv/` z PyInstallerem).
+### Z kodu źródłowego
 
-PyInstaller nie buduje krzyżowo, więc plik dla danego systemu powstaje na tym systemie:
+Potrzebujesz Pythona 3.10 lub nowszego z Tk (okna). Sprawdzisz to poleceniem `python3 -m tkinter`: jeśli pojawi się małe okienko, wszystko jest w porządku.
 
-| Polecenie | Gdzie działa |
+- macOS: dwuklik `Uruchom.command` albo `./run.sh`. Python z Homebrew często nie ma Tk; wtedy zainstaluj Pythona z python.org.
+- Windows: dwuklik `Uruchom.bat` (wymaga Pythona z launcherem `py` i Tcl/Tk).
+- Linux: `./run.sh`. Tk bywa osobnym pakietem, np. `sudo apt install python3-tk`.
+- Ręcznie: `python3 -m emka`. Konkretny interpreter wskażesz zmienną: `EMKA_PYTHON=/pełna/ścieżka/python3 ./run.sh`.
+
+## Instrukcja krok po kroku
+
+Program startuje z **przykładowymi danymi**. Zanim zaufasz jakiejkolwiek liczbie, zamień je na swoje. W katalogu `examples/` są trzy gotowe fikcyjne profile do obejrzenia (przycisk Otwórz profil).
+
+### Co przygotować
+
+- datę pierwszego przyjęcia do służby i datę zwolnienia (planowanego odejścia),
+- wysługę emerytalną w pełnych miesiącach z dokumentacji jednostki,
+- ostatnie uposażenie (zasadnicze, stałe dodatki, nagroda roczna) albo już policzoną podstawę wymiaru,
+- jeśli dotyczy: okresy z podwyższeniem (praca w warunkach szczególnych), okresy cywilne przed służbą i po niej.
+
+Zakładki w oknie wypełniasz po kolei od lewej. Wynik jest zawsze widoczny po prawej stronie. Przy każdym polu jest ikonka ⓘ: najedź na nią myszą albo naciśnij F1 w polu, a pokaże się wyjaśnienie.
+
+### Zakładka 1: Dane
+
+1. Wpisz nazwę profilu (np. „Ja, odejście w 2027”).
+2. Wybierz służbę z listy. Skróty są rozwinięte, np. SM to Straż Marszałkowska (Straż Miejska nie podlega tej ustawie).
+3. Wpisz daty jako `RRRR-MM-DD` albo `DD.MM.RRRR`: pierwsze przyjęcie, zwolnienie i datę ustalenia prawa do emerytury (zwykle dzień po zwolnieniu).
+   - Pierwsze przyjęcie to pierwsze właściwe przyjęcie do służby, razem z wcześniejszą służbą, którą ustawa zalicza. Nie wpisuj daty ostatniego powrotu do służby.
+4. Program sam podpowiada system emerytalny: do końca 2012 r. stary (próg 15 lat, 40% podstawy), od 2013 r. nowy (próg 25 lat, 60%). Pole „Sposób ustalenia emerytury” zostaw na `auto`, chyba że świadomie wybierasz art. 15aa albo 18h.
+5. Wpisz łączną wysługę w miesiącach. Pod polem zobaczysz, ile pełnych miesięcy mieści się między przyjęciem a zwolnieniem. Większa liczba zostanie odrzucona.
+6. Jeśli miałeś okresy cywilne (składkowe lub nieskładkowe) przed służbą albo chcesz doliczyć okres po służbie, wpisz miesiące w sekcji „Okresy cywilne”.
+7. Zaznacz pola w sekcji „Przypadki wymagające odrębnej analizy” tylko wtedy, gdy Cię dotyczą. Program nie policzy wtedy emerytury, tylko pokaże komunikat, bo takie sprawy trzeba rozstrzygnąć indywidualnie.
+
+### Zakładka 2: Podstawa
+
+Wybierz sposób ustalenia podstawy wymiaru:
+
+- gotowa podstawa: wpisujesz kwotę, którą już masz z jednostki lub z własnych wyliczeń,
+- składniki uposażenia: program liczy z ostatniego uposażenia, stałych dodatków i nagrody rocznej,
+- 10 kolejnych lat: średnia z dziesięciu lat. Obowiązuje w nowym systemie oraz w SM, SC i SCS. Wpisz urzędowe przeciętne uposażenie na dzień zwolnienia, a w tabeli dodaj dziesięć lat: dla każdego swoje roczne uposażenie i urzędowe roczne przeciętne uposażenie.
+
+Na dole możesz zmienić najniższą emeryturę. Domyślna kwota (1978,49 zł) obowiązuje od marca 2026 do lutego 2027.
+
+### Zakładka 3: Podwyższenia
+
+Zaznacz inwalidztwo związane ze służbą (+15 pp) albo Medal im. Struja (+1 pp), jeśli dotyczy. Okresy szczególnej służby dodaj przyciskiem + Dodaj, podając miesiące początku i końca w formacie `RRRR-MM`. Każdy okres trzeba potwierdzić: zaznaczasz, że jednostka go zaliczyła po sprawdzeniu wymaganych norm. Niepotwierdzony okres nie jest liczony.
+
+### Zakładka 4: Dodatki
+
+Tu możesz sprawdzić własny wariant, np. „co jeśli dostanę dodatkowe 2 pp” albo „stały dodatek 150 zł”. Te pozycje pokazują się obok wyniku z ustawy i nigdy go nie zmieniają.
+
+### Zakładka 5: Netto i dorabianie
+
+- Zaznacz, czy rozliczasz emeryturę z kwotą zmniejszającą podatek (300 zł miesięcznie). Dotyczy to osób, które złożyły oświadczenie PIT-2 u płatnika emerytury.
+- Wpisz miesięczny przychód brutto z pracy w cywilnej firmie. Program pokaże, o ile zmniejszy się emerytura i ile zostanie na rękę. Tabela niżej pokazuje, jak to wygląda przy różnych przychodach.
+- Progi 70% i 130% przeciętnego wynagrodzenia oraz kwota maksymalnego zmniejszenia zmieniają się co kwartał. Wpisane domyślnie obowiązują do 30.11.2026. Po tej dacie sprawdź aktualne wartości (komunikat Prezesa ZUS w Monitorze Polskim) i wpisz je w polach.
+
+### Zakładka 6: Symulacja
+
+Wpisz horyzont (liczba lat), przewidywany wzrost waloryzacji (np. `4`) i inflację (np. `2,5`). Domyślne wartości to tylko przykład. Dla wybranych lat możesz podać inne stopy w tabeli. Pod tabelą jest wykres. Pola nad nim włączają i wyłączają linie: „Wariant (mies.)”, „Ustawa (mies.)”, „Wartość realna” i „Netto (mies.)”. Najedź na nagłówek kolumny tabeli, żeby zobaczyć, co oznacza.
+
+### Obliczenie i zapis
+
+1. Kliknij Oblicz emeryturę (albo F5). Po każdej zmianie danych wynik się unieważnia i trzeba policzyć ponownie.
+2. Dodaj wynik do porównania zapisuje scenariusz na zakładce „Porównanie”. Zmień dane, policz i dodaj następny, a potem porównaj. Dwuklik na scenariuszu przywraca jego dane. Porównanie istnieje tylko do zamknięcia programu.
+3. Zapisz profil (Ctrl/Cmd+S) zapisuje wszystkie dane do pliku `.json`, który otworzysz później przyciskiem Otwórz profil. To Twoje dane finansowe, więc przechowuj plik tak ostrożnie jak inne dokumenty. Wczytując plik od kogoś innego, sprawdź progi na zakładce 5.
+4. Eksport CSV zapisuje symulację do arkusza (separator `;`, polskie przecinki, otwiera się w Excelu).
+5. Raport zapisuje plik Markdown z wynikiem, założeniami i pełną konfiguracją. Dobrze nadaje się do archiwum albo do pokazania doradcy.
+
+## Jak czytać wynik
+
+Panel po prawej pokazuje:
+
+- Kwota brutto, czyli emerytura według reguł ustawy, miesięcznie.
+- Netto, czyli po składce zdrowotnej 9% i zaliczce na PIT, liczone tylko od samej emerytury.
+- System (np. „15aa” albo „rozdział 1a”) i podstawę wymiaru z procentem, który do niej zastosowano.
+- Wariant z własnymi dodatkami, jeśli jakieś dodałeś.
+- Poniżej listę składników procentowych i założeń. Warto ją przeczytać, bo tam program zapisuje, co przyjął za pewnik.
+- Na czerwono skutek dorabiania, jeśli wpisałeś przychód z pracy. Ostrzeżenia o progach, które mogły wygasnąć, albo o skoku zmniejszenia po przekroczeniu 130% pokazuje zakładka 5.
+
+W symulacji kolumny oznaczają kwoty z grudnia danego roku, chyba że nazwa mówi inaczej. „Wartość realna” to kwota w cenach początku pierwszego roku symulacji, czyli po uwzględnieniu inflacji.
+
+## Czego program nie robi
+
+- Nie sprawdza Twoich dokumentów i nie ustala prawa do emerytury. Spełnienie progu stażu to tylko spełnienie progu miesięcy.
+- Nie kwalifikuje zdarzeń służby ani norm rocznych dla podwyższeń. Wpisujesz okresy, które jednostka już zaliczyła.
+- Nie liczy spraw wymagających indywidualnej analizy: art. 15c (służba w organach bezpieczeństwa PRL), wyłączeń z art. 10, mieszanej służby w jednym roku, części przypadków SC i SCS.
+- Nie uwzględnia rent, 13. i 14. emerytury, potrąceń, zbiegu wypłat ani innych dochodów poza samą emeryturą.
+- Nie odtwarza emerytur przyznanych przed 2026 r. i nie przewiduje zmian prawa. Prognoza zakłada, że reguły się nie zmienią.
+- Dorabianie liczy dla stałego miesięcznego przychodu. W rzeczywistości rozliczenie następuje po zakończeniu roku.
+
+Pełny opis przepisów, które program stosuje, jest w zakładce Przepisy (to samo w pliku [emka/PRZEPISY.md](emka/PRZEPISY.md)). Wyniki sprawdzenia programu z ustawą opisuje [docs/WERYFIKACJA.md](docs/WERYFIKACJA.md).
+
+## Najczęstsze problemy
+
+| Problem | Co zrobić |
 |---|---|
-| `make mac` | tylko macOS (aplikacja jest dla architektury komputera: arm64 lub x86_64, niepodpisana — przy pierwszym uruchomieniu: prawy przycisk → Otwórz) |
-| `make win` lub `python tools/build.py` | tylko Windows — **nie testowano** |
-| `make linux` | Linux natywnie, a na innym systemie przez Docker (`make linux DOCKER_PLATFORM=linux/amd64` wymusza x86_64) |
-| `make all` | to, co da się zbudować na tym komputerze; resztę pomija z komunikatem |
+| „Wysługa jest dłuższa niż czas od pierwszego przyjęcia do zwolnienia” | Popraw daty albo liczbę miesięcy. Okresy równorzędne sprzed przyjęcia uwzględnij, wpisując wcześniejszą datę pierwszego przyjęcia. |
+| W panelu pojawia się „Brak stażu” | Liczba miesięcy jest mniejsza niż próg (15 lat w starym systemie, 25 w nowym). Emerytura nie przysługuje. |
+| „Dane zmienione. Oblicz ponownie.” | To normalne. Kliknij Oblicz emeryturę albo naciśnij F5. |
+| Okno z komunikatem „Przypadek wymaga indywidualnego rozstrzygnięcia” | Zaznaczyłeś jedno z pól w sekcji „Przypadki wymagające odrębnej analizy” na zakładce 1. Program celowo nie liczy takich spraw; rozstrzyga je organ emerytalny. |
+| Nie otwiera się profil | Plik musi pochodzić z EMKA (format `.json` z tej aplikacji), mieć mniej niż 2 MB i poprawne wartości. Komunikat podaje, które pole jest błędne. |
+| Przy uruchomieniu z kodu: brak modułu `_tkinter` | Twój Python nie ma Tk. Zainstaluj Pythona z obsługą Tcl/Tk (python.org) albo pakiet `python3-tk`. |
+| Windows blokuje plik `.exe` | Patrz [Gotowy program](#gotowy-program): „Więcej informacji”, potem „Uruchom mimo to”. |
 
-Bez `make` (np. na Windows): `python tools/build.py` buduje dla systemu, na którym go uruchomisz (ten sam skrypt używa `make` i CI).
+## Dla programistów i licencja
 
-Aby dostać wszystkie trzy pliki naraz, wypchnij tag `v*` do repozytorium z runnerami Windows/macOS/Linux: `.github/workflows/build.yml` (GitHub albo Gitea Actions, jeszcze nieuruchamiany) zbuduje je równolegle. Dla Gitei jest osobny plik `.gitea/workflows/build.yml` (etykiety runnerów opisane w komentarzu; Windows wymaga runnera na hoście Windows). Binarka Linuksa wymaga biblioteki glibc nie starszej niż w systemie budowania (Docker: Debian bookworm).
+Budowanie plików wykonywalnych, uruchamianie testów, struktura kodu i procedura wydania są opisane w [docs/ROZWOJ.md](docs/ROZWOJ.md). Model zagrożeń (STRIDE) jest w [docs/STRIDE.md](docs/STRIDE.md), a historia zmian w [CHANGELOG.md](CHANGELOG.md).
 
-## Przepisy i ograniczenia
-
-Źródła sprawdzono **29.10.2026**. Przed implementacją przygotowano [szczegółową analizę](emka/PRZEPISY.md) z artykułami, warunkami, wyjątkami i odnośnikami do ELI oraz ZER MSWiA. Nie jest to kalkulator decyzji administracyjnych. Wynik dotyczy reguł wysokości świadczenia przy zadeklarowanych danych, a etykieta stażu oznacza wyłącznie spełnienie progu miesięcy.
-
-Program przyjmuje wysługę już potwierdzoną: nie kwalifikuje zdarzeń, norm rocznych ani okresów cywilnych/KAS. Nie odtwarza historycznych emerytur sprzed 2026 r. Przyszłe odejścia i waloryzacje zakładają niezmienność opisanych reguł. Nietypowe SC/SCS, mieszane służby w roku i art. 15c wymagają indywidualnej analizy; odpowiednie przypadki blokują standardowy wzór. Obliczenia podstawowe są brutto; netto obejmuje wyłącznie podatek i składkę zdrowotną od samej emerytury (bez innych dochodów). Program nie uwzględnia rent, 13./14. świadczenia, potrąceń ani zbiegu wypłat. Dorabianie liczy skutek miesięczny przy stałym przychodzie, a rozliczenie następuje w rzeczywistości po zakończeniu roku.
-
-Wypłaty roczne: od następnego pełnego miesiąca po zwolnieniu, nie wcześniej niż w miesiącu ustalenia prawa. Pominięto niepełne miesiące i wyrównania. Wartości realne dotyczą grudnia w cenach początku pierwszego roku symulacji. 1978,49 zł to minimum od marca 2026 do lutego 2027; dla innych dat trzeba podać właściwą kwotę. Stopy przyszłej waloryzacji są założeniem użytkownika.
-
-## Testy i rozwój
-
-`python3 -m unittest discover -s tests -v`
-
-Testy komponentów GUI, wymagające działającej sesji graficznej i Tk:
-
-`EMKA_GUI_TEST=1 python3 -m unittest discover -s tests -v`
-
-Obliczenia pieniężne korzystają z `Decimal`, zaokrąglenia do grosza metodą HALF_UP. Każdy stosunek roczny w metodzie 10 lat jest osobno zaokrąglany do 0,01 punktu procentowego przed obliczeniem średniej. Pozostałe przyrosty są liczone w pełnych miesiącach. Testy obejmują m.in. granice dat i stażu, różnice systemów, limity, zbieg podwyższeń, marcową waloryzację, profile i eksporty.
-
-Struktura: `emka/engine.py` — reguły; `emka/gui.py` — okna; `emka/storage.py` — profile i raporty; `emka/assets/` — ikona (PNG, ICO, ICNS), odtwarzana skryptem `tools/make_icon.py` (wymaga Pillow, sam program nie); `emka/PRZEPISY.md` — analiza przepisów (ten sam plik jest pokazywany w zakładce „Przepisy”, więc nie ma drugiej kopii do synchronizacji); `docs/WERYFIKACJA.md` — wyniki weryfikacji. Przed zmianą wersji reguł trzeba ponownie zweryfikować źródła i daty wejścia w życie oraz uzupełnić testy.
+Autor: [mar0ls](https://github.com/mar0ls). Program jest udostępniony na licencji MIT (plik [LICENSE](LICENSE)): możesz go używać, kopiować i zmieniać za darmo, ale bez żadnej gwarancji. Pliki wykonywalne zawierają dodatkowo Pythona, Tcl/Tk i program ładujący PyInstallera; ich licencje wymienia [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

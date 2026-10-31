@@ -45,7 +45,8 @@ def ensure_venv():
     python = venv_python()
     if not python.exists():
         venv.create(ROOT / ".build-venv", with_pip=True)
-        run([python, "-m", "pip", "install", "--quiet", "--upgrade", "pip", "pyinstaller"])
+        run([python, "-m", "pip", "install", "--quiet", "--upgrade", "pip"])
+        run([python, "-m", "pip", "install", "--quiet", "-r", ROOT / "tools" / "requirements-build.txt"])
     return python
 
 

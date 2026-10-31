@@ -12,10 +12,10 @@ from tkinter.scrolledtext import ScrolledText
 
 from . import __version__
 from .engine import (AnnualPay, BONUS_RATES, Bonus, Extra, FIELD_LABELS, MONTH_FIELDS, Profile,
-                     RULE_DATE, SERVICES, calculate, earnings_effect, earnings_table, forecast,
+                     RULE_DATE, SERVICES, SERVICE_NAMES, calculate, earnings_effect, earnings_table, forecast,
                      full_months_between, integer, net_pension, number, parse_date, parse_month,
                      service_rules)
-from .helptext import EARNINGS_COLUMNS, FORECAST_COLUMNS, HELP
+from .helptext import DISCLAIMER, EARNINGS_COLUMNS, FORECAST_COLUMNS, HELP
 from .storage import export_csv, load_profile, report, save_profile
 
 # Kolory i czcionka całego programu.
@@ -232,8 +232,8 @@ class Editor(tk.Toplevel):
         self.destroy()
 
 
-INLINE_MARKDOWN = re.compile(r"(\*\*.+?\*\*|\[[^\]]+\]\(https?://[^)\s]+\))")
-LINK_MARKDOWN = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
+INLINE_MARKDOWN = re.compile(r"(\*\*.+?\*\*|\[[^\]]+\]\(https://[^)\s]+\))")
+LINK_MARKDOWN = re.compile(r"\[([^\]]+)\]\((https://[^)\s]+)\)")
 
 
 def show_markdown(widget, markdown):
@@ -357,7 +357,6 @@ class App(tk.Tk):
         self.bind_all("<Button-5>", self.on_mousewheel)
         self.calculate_show()
 
-    # ---------------------------------------------------------------- układ okna
 
     def set_icon(self):
         """Ikona okna i (na macOS/Linuksie) ikona w docku. Brak pliku nie może blokować programu."""
@@ -429,6 +428,8 @@ class App(tk.Tk):
                                         state="disabled")
         self.result_text.pack(fill="both", expand=True, pady=10)
         ttk.Button(side, text="Dodaj wynik do porównania", command=self.add_snapshot).pack(fill="x", pady=(10, 0))
+        self.disclaimer = ttk.Label(side, text=DISCLAIMER, style="Hint.TLabel", wraplength=285)
+        self.disclaimer.pack(anchor="w", pady=(12, 0))
 
     def create_variables(self):
         """Dla każdego pola profilu tworzy zmienną Tk, która jest źródłem prawdy dla formularza.
@@ -461,7 +462,6 @@ class App(tk.Tk):
         if selected_tab:
             self.nametowidget(selected_tab).scroll(event)
 
-    # ---------------------------------------------------------- pomocnicy formularza
 
     def page(self, title):
         page = ScrollFrame(self.notebook)
@@ -474,13 +474,18 @@ class App(tk.Tk):
             ttk.Label(frame, text=hint, style="Hint.TLabel", wraplength=TEXT_WIDTH,
                       justify="left").pack(fill="x", pady=(0, 16))
 
-    def field(self, frame, key, title, choices=None, hint=""):
-        """Wiersz formularza: etykieta, pole (lub lista wyboru) i ikonka ⓘ z pomocą."""
+    def field(self, frame, key, title, choices=None, hint="", labels=None):
+        """Wiersz formularza: etykieta, pole (lub lista wyboru) i ikonka ⓘ z pomocą.
+
+        `labels` (opcjonalnie) to słownik wartość -> opis pokazywany na liście; w profilu
+        zawsze zapisuje się sama wartość (np. skrót służby)."""
         row = ttk.Frame(frame, style="White.TFrame")
         row.pack(fill="x", pady=6)
         label = ttk.Label(row, text=title, wraplength=300)
         label.pack(side="left", anchor="w", padx=(0, 10))
-        if choices:
+        if choices and labels:
+            widget = self._labelled_combobox(row, key, choices, labels)
+        elif choices:
             widget = ttk.Combobox(row, textvariable=self.vars[key], values=choices, state="readonly", width=24)
         else:
             widget = ttk.Entry(row, textvariable=self.vars[key], width=26)
@@ -495,6 +500,26 @@ class App(tk.Tk):
 
         if hint:
             ttk.Label(frame, text=hint, style="Hint.TLabel", wraplength=TEXT_WIDTH).pack(anchor="w", pady=(0, 6))
+        return widget
+
+    def _labelled_combobox(self, parent, key, choices, labels):
+        """Lista wyboru z opisami („SM — Straż Marszałkowska”), która zapisuje do profilu sam skrót."""
+        shown = {value: f"{value} — {labels[value]}" if labels.get(value, value) != value else value
+                 for value in choices}
+        by_text = {text: value for value, text in shown.items()}
+        display = tk.StringVar(value=shown.get(self.vars[key].get(), self.vars[key].get()))
+        widget = ttk.Combobox(parent, textvariable=display, values=list(shown.values()), state="readonly", width=34)
+        widget.display_var = display  # trzymamy referencję, żeby zmienna nie zniknęła
+
+        def to_profile(*_):
+            self.vars[key].set(by_text.get(display.get(), display.get()))
+
+        def to_widget(*_):
+            value = self.vars[key].get()
+            display.set(shown.get(value, value))
+
+        widget.bind("<<ComboboxSelected>>", to_profile)
+        self.vars[key].trace_add("write", to_widget)  # wczytanie profilu lub zmiana z kodu
         return widget
 
     def check(self, frame, key, text):
@@ -522,7 +547,6 @@ class App(tk.Tk):
         tree.bind("<Double-1>", lambda e: edit())
         return tree
 
-    # ------------------------------------------------------------------- zakładki
 
     def build_data(self):
         f = self.page("1  Dane")
@@ -533,7 +557,9 @@ class App(tk.Tk):
                           "Daty wpisuj jako RRRR-MM-DD albo DD.MM.RRRR.",
                   style="Hint.TLabel", wraplength=TEXT_WIDTH).pack(anchor="w", pady=(0, 10))
         self.field(f, "name", "Nazwa profilu")
-        self.field(f, "service", "Służba", SERVICES)
+        self.field(f, "service", "Służba", SERVICES, labels=SERVICE_NAMES,
+                   hint="SM to Straż Marszałkowska (przy Marszałku Sejmu). Straż Miejska (gminna) nie podlega "
+                        "tej ustawie - jej strażnicy są pracownikami samorządowymi z emeryturą z FUS.")
         self.field(f, "first_entry", "Pierwsze właściwe przyjęcie",
                    hint="Uwzględnij wcześniejszą służbę i wyjątki art. 18a ust. 2; nie wpisuj daty ostatniego powrotu do służby.")
         self.field(f, "release", "Zwolnienie / planowane odejście")
@@ -755,7 +781,6 @@ class App(tk.Tk):
         show_markdown(self.law_text, Path(__file__).with_name("PRZEPISY.md").read_text(encoding="utf-8"))
         self.law_text.configure(state="disabled")
 
-    # ------------------------------------------------- edycja tabel (okna „Dodaj”)
 
     def selected(self, tree):
         """Indeks zaznaczonego wiersza albo None."""
@@ -870,7 +895,6 @@ class App(tk.Tk):
             for i, row in enumerate(rows):
                 tree.insert("", "end", iid=str(i), values=row)
 
-    # ------------------------------------------ reakcja na zmiany w formularzu
 
     def clear_results(self):
         self.result = None
@@ -950,7 +974,6 @@ class App(tk.Tk):
             self.vars["regime"].set("auto")
         self.refresh_rule_context()
 
-    # ------------------------------------------------------------------ obliczenia
 
     def collect(self):
         """Składa profil z bieżących wartości formularza i list trzymanych w `self.profile`."""
@@ -1034,7 +1057,6 @@ class App(tk.Tk):
                         f"{format_pln(variant.net)} netto.")
         self.net_summary.configure(text=summary)
 
-        # Skutek dorabiania.
         limits = (f"Progi: 70% = {format_pln(effect.low)}, 130% = {format_pln(effect.high)}.")
         if effect.exempt:
             verdict = "Emerytura wynosi co najmniej 75% podstawy — dorabiasz bez zmniejszeń."
@@ -1075,7 +1097,6 @@ class App(tk.Tk):
                            font=(FONT, 10))
         highest = max(max(values) for _, values in series) * 1.12 or 1
 
-        # Siatka z opisem osi pionowej.
         for i in range(5):
             y = top + (bottom - top) * i / 4
             canvas.create_line(left, y, right, y, fill=LINE)
@@ -1100,7 +1121,6 @@ class App(tk.Tk):
             x = left + (right - left) * i / max(1, count - 1)
             canvas.create_text(x, bottom + 20, text=str(self.rows[i].year), fill=MUTED, font=(FONT, 10))
 
-    # ------------------------------------------------------------ pliki i profile
 
     def fill_profile(self, profile):
         """Wstawia profil do formularza i od razu przelicza."""
@@ -1163,7 +1183,6 @@ class App(tk.Tk):
         if path:
             self.write_file(lambda: Path(path).write_text(report(self.profile, self.result), encoding="utf-8"), path)
 
-    # --------------------------------------------------------------- porównanie
 
     def add_snapshot(self):
         if not self.calculate_show():

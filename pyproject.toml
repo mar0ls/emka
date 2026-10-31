@@ -1,16 +1,27 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "emka"
-version = "1.3.0"
-description = "Kalkulator i symulator emerytur polskich funkcjonariuszy"
+dynamic = ["version"]  # numer wersji jest w emka/__init__.py
+description = "Poglądowy (nieoficjalny) szacunek emerytury funkcjonariuszy służb mundurowych"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "mar0ls", email = "120790937+mar0ls@users.noreply.github.com"}]
 requires-python = ">=3.10"
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/mar0ls/emka"
+Changelog = "https://github.com/mar0ls/emka/blob/main/CHANGELOG.md"
+
 [project.scripts]
 emka = "emka.gui:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "emka.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["emka*"]

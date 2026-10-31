@@ -1,4 +1,4 @@
-# Gitea Actions - budowanie EMKA. NIE BYŁO JESZCZE URUCHAMIANE na prawdziwej instancji Gitea.
+# Gitea Actions - budowanie i publikacja EMKA. NIE BYŁO JESZCZE URUCHAMIANE na prawdziwej instancji Gitea.
 #
 # W Gitei etykiety w `runs-on` to nazwy etykiet zarejestrowanych runnerów (act_runner), a nie systemy "-latest".
 # Zarejestruj runnery tak, aby pasowały do poniższych etykiet, np.:
@@ -8,7 +8,11 @@
 #   act_runner register ... --labels "windows:host"                          # na Windows (wymaga hosta Windows!)
 # Zadanie bez pasującego runnera po prostu czeka w kolejce - pozostałe zadania i tak się wykonają.
 #
-# Uruchamia się po wypchnięciu tagu v* albo ręcznie (zakładka Actions). Plik .github/workflows/build.yml jest dla GitHuba.
+# Wydanie: zmień wersję w emka/__init__.py, dopisz wpis w CHANGELOG.md, zatwierdź, a potem:
+#   git tag v0.1.0 && git push origin v0.1.0
+# Każde zadanie dołącza swoje pliki do wydania w Gitei (tools/gitea_release.py), więc brak runnera Windows
+# lub macOS nie blokuje wydania z Linuksem. Ręczne uruchomienie tylko buduje i zapisuje artefakty.
+# Pełne wydanie ze wszystkimi trzema systemami robi .github/workflows/build.yml na GitHubie.
 name: build
 
 on:
@@ -16,17 +20,22 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
-# Uwaga: upload-artifact@v3 jest celowe - Gitea nie obsługuje wersji v4 (na GitHubie v3 jest już przestarzałe,
-# stąd osobny plik dla GitHuba). Jeśli Twoja wersja Gitei obsługuje v4, możesz podnieść wersję.
+# Uwaga: wersje @v3 akcji artefaktów są celowe - Gitea nie obsługuje v4 (na GitHubie v3 jest przestarzałe,
+# stąd osobny plik dla GitHuba). Jeśli Twoja Gitea obsługuje v4, możesz podnieść wersję.
+# checkout jest przypięty do skrótu commitu; upload-artifact@v3 zostaje przy tagu (przypnij skrót, gdy
+# sprawdzisz go na https://github.com/actions/upload-artifact/tags).
 jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Zależności systemowe
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update && apt-get install -y python3 python3-tk python3-venv xvfb
+      - name: Tag zgadza się z wersją i CHANGELOG.md
+        if: startsWith(github.ref, 'refs/tags/')
+        run: python3 tools/release.py check-tag "$GITHUB_REF_NAME"
       - run: python3 -m unittest discover -s tests
       - name: Budowanie i self-test (wirtualny ekran)
         run: xvfb-run -a python3 tools/build.py
@@ -34,25 +43,40 @@ jobs:
         with:
           name: EMKA-linux
           path: dist/EMKA-*
+      - name: Dołączenie do wydania
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITEA_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 tools/gitea_release.py dist/EMKA-*
 
   macos:
     runs-on: macos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - run: python3 -m unittest discover -s tests
       - run: python3 tools/build.py
       - uses: actions/upload-artifact@v3
         with:
           name: EMKA-macos
           path: dist/EMKA-*
+      - name: Dołączenie do wydania
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITEA_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 tools/gitea_release.py dist/EMKA-*
 
   windows:
     runs-on: windows
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - run: python -m unittest discover -s tests
       - run: python tools/build.py
       - uses: actions/upload-artifact@v3
         with:
           name: EMKA-windows
           path: dist/EMKA-*
+      - name: Dołączenie do wydania
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITEA_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/gitea_release.py dist/EMKA-*

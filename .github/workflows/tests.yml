@@ -1,0 +1,45 @@
+# Testy przy każdej zmianie w gałęzi main i w pull requestach. Niczego nie buduje ani nie publikuje.
+# Python 3.10 jest najstarszą wersją obsługiwaną przez program (requires-python w pyproject.toml).
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Zależności systemowe (Tk i wirtualny ekran)
+        run: sudo apt-get update && sudo apt-get install -y python3-tk xvfb
+      - name: Testy razem z testami okien
+        env:
+          EMKA_GUI_TEST: "1"
+        run: xvfb-run -a python -m unittest discover -s tests -v
+
+  windows-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Testy (bez okien)
+        run: python -m unittest discover -s tests -v

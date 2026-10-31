@@ -71,10 +71,6 @@ FIELD_LABELS = {
 MONTH_FIELDS = tuple(name for name in FIELD_LABELS if name.endswith("_months"))
 
 
-# --------------------------------------------------------------------------
-# Wczytywanie i walidacja pojedynczych wartości
-# --------------------------------------------------------------------------
-
 def number(value, label="Liczba", minimum=ZERO, maximum=Decimal("1000000000")):
     """Zamienia tekst (z przecinkiem lub kropką, ze spacjami) na Decimal."""
     try:
@@ -134,10 +130,6 @@ def full_months_between(start, end):
         months -= 1
     return max(0, months)
 
-
-# --------------------------------------------------------------------------
-# Dane wejściowe i wyniki
-# --------------------------------------------------------------------------
 
 @dataclass
 class Bonus:
@@ -244,10 +236,6 @@ class ForecastRow:
     annual: Decimal  # suma wypłat w roku
     cumulative: Decimal
 
-
-# --------------------------------------------------------------------------
-# Wybór przepisów
-# --------------------------------------------------------------------------
 
 def select_regime(p):
     """Zwraca oznaczenie przepisów, według których liczymy emeryturę.
@@ -357,10 +345,6 @@ def service_rules(p):
             "Szczegóły i wyjątki: zakładka Przepisy.")
 
 
-# --------------------------------------------------------------------------
-# Podstawa wymiaru
-# --------------------------------------------------------------------------
-
 def compute_basis(p, modern, service_months, warnings):
     """Miesięczna podstawa wymiaru emerytury (art. 5 i 18f).
 
@@ -430,10 +414,6 @@ def ten_year_basis(p, longevity, warnings):
     return money(index * current_average + longevity)
 
 
-# --------------------------------------------------------------------------
-# Podwyższenia
-# --------------------------------------------------------------------------
-
 def bonus_percent(p, modern, first, release, service_months, warnings):
     """Suma podwyższeń (w pp podstawy) z potwierdzonych okresów.
 
@@ -468,10 +448,6 @@ def bonus_percent(p, modern, first, release, service_months, warnings):
                         "norm rocznych, incydentów ani historycznych uprawnień jednostki.")
     return sum(rate_per_month.values(), ZERO)
 
-
-# --------------------------------------------------------------------------
-# Obliczenie emerytury
-# --------------------------------------------------------------------------
 
 @dataclass
 class _Input:
@@ -664,10 +640,6 @@ def calculate(p):
                   money(fixed_extra), breakdown, warnings, eligible, missing_months)
 
 
-# --------------------------------------------------------------------------
-# Emerytura netto
-# --------------------------------------------------------------------------
-
 @dataclass
 class NetPension:
     gross: Decimal
@@ -694,10 +666,6 @@ def net_pension(gross, use_tax_reducing_amount=True):
     health = money(gross * HEALTH_RATE)
     return NetPension(gross, health, tax, gross - health - tax)
 
-
-# --------------------------------------------------------------------------
-# Dorabianie: zmniejszanie emerytury (art. 41 ustawy, art. 104 ustawy o FUS)
-# --------------------------------------------------------------------------
 
 def is_exempt_from_reduction(p, result):
     """Art. 41 ust. 4: emerytura równa co najmniej 75% podstawy (bez +15 pp za inwalidztwo) nie jest zmniejszana."""
@@ -778,7 +746,7 @@ def earnings_effect(p, result, today=None):
                             f"najwyżej {just_below:.2f} zł, a o 1 gr wyżej od razu {just_above:.2f} zł (25% emerytury, "
                             "bez kwoty maksymalnej - art. 41 ust. 3).")
     warnings.append("Zmniejszenie rozlicza się po zakończeniu roku (rocznie albo miesięcznie na wniosek); "
-                    "tu pokazano miesięczny skutek przy stałym przychodzie. Ustawa nie wyłącza zmniejszeń ze względu na wiek.")
+                    "tu pokazano miesięczny skutek przy stałym przychodzie. Z tekstu ustawy nie wynika wyłączenie ze względu na wiek; potwierdź to w organie emerytalnym.")
 
     after = result.pension - reduction
     return EarningsEffect(income, low, high, exempt, zone, reduction, result.pension, after,
@@ -797,10 +765,6 @@ def earnings_table(p, result):
         rows.append((income, reduction, after, net_pension(after, p.pit2).net))
     return rows
 
-
-# --------------------------------------------------------------------------
-# Symulacja waloryzacji
-# --------------------------------------------------------------------------
 
 def _read_overrides(p, first_year, years):
     """Roczne wyjątki od domyślnej waloryzacji i inflacji: {rok: (wzrost, inflacja)}."""

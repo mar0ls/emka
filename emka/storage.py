@@ -7,7 +7,8 @@ import json
 from dataclasses import asdict, fields
 from pathlib import Path
 
-from .helptext import FORECAST_COLUMNS
+from . import __version__
+from .helptext import DISCLAIMER, FORECAST_COLUMNS
 from .engine import (AnnualPay, Bonus, Extra, Profile, RULE_DATE, calculate, earnings_effect, earnings_table,
                      forecast, net_pension, service_rules)
 
@@ -15,6 +16,7 @@ SCHEMA_VERSION = 1
 MAX_PROFILE_BYTES = 2_000_000
 MAX_LIST_ITEMS = 1000
 MAX_OVERRIDES = 60
+MAX_TEXT_LENGTH = 100
 
 # Pola, które w JSON muszą być prawdziwymi wartościami true/false (a nie napisem "false").
 BOOLEAN_FIELDS = ("post_conditions", "disability", "medal", "special_case", "fus_service_used", "exclusion", "pit2")
@@ -23,6 +25,17 @@ BOOLEAN_FIELDS = ("post_conditions", "disability", "medal", "special_case", "fus
 def _require_bool(value, message):
     if type(value) is not bool:
         raise ValueError(message)
+
+
+def _require_text(value, label):
+    """Nazwy pochodzą z pliku, który mógł ktoś zmienić: tylko krótki tekst bez znaków sterujących."""
+    if not isinstance(value, str) or len(value) > MAX_TEXT_LENGTH or any(ord(c) < 32 or ord(c) == 127 for c in value):
+        raise ValueError(f"{label}: wymagany krótki tekst (do {MAX_TEXT_LENGTH} znaków) bez znaków sterujących.")
+
+
+def _one_line(text):
+    """Nazwa do wstawienia w nagłówek raportu: bez łamania linii, które mogłyby dopisać własne nagłówki."""
+    return " ".join(str(text).split())
 
 
 def decode_profile(data):
@@ -36,16 +49,25 @@ def decode_profile(data):
         items = data.get(key, [])
         if not isinstance(items, list) or len(items) > MAX_LIST_ITEMS:
             raise ValueError(f"Niepoprawna lista: {key}.")
-        data[key] = [record_class(**item) for item in items]
+        try:
+            data[key] = [record_class(**item) for item in items]
+        except TypeError:
+            raise ValueError(f"Niepoprawne pola na liście: {key}.") from None
 
-    profile = Profile(**data)
+    try:
+        profile = Profile(**data)
+    except TypeError:
+        raise ValueError("Niepoprawne pola profilu.") from None
+    _require_text(profile.name, "Nazwa profilu")
     for key in BOOLEAN_FIELDS:
         _require_bool(getattr(profile, key), f"{key}: wymagane true/false.")
     if profile.new_system is not None:
         _require_bool(profile.new_system, "new_system: wymagane true/false albo null (dobór automatyczny).")
     for bonus in profile.bonuses:
+        _require_text(bonus.name, "Nazwa podwyższenia")
         _require_bool(bonus.confirmed, "Potwierdzenie podwyższenia musi być wartością true/false.")
     for extra in profile.extras:
+        _require_text(extra.name, "Nazwa dodatku")
         _require_bool(extra.indexed, "Stan własnego dodatku musi być wartością true/false.")
         _require_bool(extra.enabled, "Stan własnego dodatku musi być wartością true/false.")
     if not isinstance(profile.overrides, dict) or len(profile.overrides) > MAX_OVERRIDES:
@@ -59,12 +81,17 @@ def decode_profile(data):
 def save_profile(path, profile):
     decode_profile(asdict(profile))  # walidacja przed zapisem
     path = Path(path)
-    document = {"schema_version": SCHEMA_VERSION, "rules_checked": RULE_DATE, "profile": asdict(profile)}
+    document = {"schema_version": SCHEMA_VERSION, "app_version": __version__, "rules_checked": RULE_DATE,
+                "profile": asdict(profile)}
 
     # Zapis przez plik tymczasowy: awaria w trakcie nie zniszczy poprzedniej wersji.
     temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(document, ensure_ascii=False, indent=2), encoding="utf-8")
-    temporary.replace(path)
+    try:
+        temporary.write_text(json.dumps(document, ensure_ascii=False, indent=2), encoding="utf-8")
+        temporary.replace(path)
+    except OSError:
+        temporary.unlink(missing_ok=True)
+        raise
 
 
 def load_profile(path):
@@ -127,8 +154,9 @@ def report(p, r):
     """Raport Markdown: wynik, założenia, tabela waloryzacji i pełna konfiguracja."""
     staz = "spełniony" if r.eligible else f"brakuje {r.missing_months} miesięcy"
     lines = [
-        f"# EMKA — {p.name}", "",
-        f"Reguły sprawdzone: {RULE_DATE}. Kwoty brutto; wynik orientacyjny.", "",
+        f"# EMKA — {_one_line(p.name)}", "",
+        f"Wersja programu: {__version__}. Reguły sprawdzone: {RULE_DATE}. Kwoty brutto; szacunek poglądowy.", "",
+        f"_{DISCLAIMER}_", "",
         f"Służba: {p.service}; pierwsze przyjęcie: {p.first_entry}; zwolnienie: {p.release}; ustalenie prawa: {p.right_date}.",
         f"System: {r.regime}; wysługa: {p.service_months} miesięcy; do art. 15aa: {p.qualifying_25_months} miesięcy.",
         f"Warunek stażu: {staz}.", "",
@@ -145,7 +173,7 @@ def report(p, r):
     lines += [f"- {warning}" for warning in r.warnings]
     lines += [
         "- Staż i okresy podwyższeń muszą wynikać z dokumentacji jednostki. Aplikacja nie ustala prawa do świadczenia.",
-        "- Symulacja nie uwzględnia PIT, składki zdrowotnej, 13./14. emerytury, potrąceń ani ograniczeń dorabiania.",
+        "- Kolumna netto odejmuje składkę zdrowotną i zaliczkę na PIT tylko od samej emerytury. Symulacja nie uwzględnia 13./14. emerytury, potrąceń ani dorabiania.",
         "- Wypłaty od następnego pełnego miesiąca po zwolnieniu, nie wcześniej niż w miesiącu ustalenia prawa; bez wyrównań.",
         "- Własne dodatki poza limitami są hipotetyczne. Prognoza zakłada niezmienność prawa.",
         "", "## Waloryzacja — scenariusz użytkownika", "",

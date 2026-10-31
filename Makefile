@@ -77,7 +77,7 @@ linux:
 	@docker info >/dev/null 2>&1 || { echo "make linux: Docker jest zainstalowany, ale nie działa. Uruchom Docker Desktop."; exit 1; }
 	docker run --rm $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM)) --user "$$(id -u):$$(id -g)" -e HOME=/tmp \
 		-v "$(CURDIR)":/src -w /src $(DOCKER_IMAGE) \
-		sh -c "python -m pip install --quiet --user pyinstaller && python tools/build.py --current-python --skip-self-test --workpath /tmp/build"
+		sh -c "python -m pip install --quiet --user -r tools/requirements-build.txt && python tools/build.py --current-python --skip-self-test --workpath /tmp/build"
 	@echo "Self-test w kontenerze z wirtualnym ekranem (xvfb)..."
 	docker run --rm $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM)) -v "$(CURDIR)/dist":/dist $(DOCKER_IMAGE) \
 		sh -c 'apt-get update -qq >/dev/null && apt-get install -y -qq xvfb >/dev/null 2>&1 && xvfb-run -a "$$(ls -t /dist/EMKA-*-linux-* | head -1)" --self-test'
