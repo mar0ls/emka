@@ -81,7 +81,7 @@ Co dzieje się dalej:
 - **GitHub** (`.github/workflows/build.yml`): zadanie `check` weryfikuje tag, zadanie `build` buduje i testuje program na Windows, macOS i Linuksie, a zadanie `release` tworzy wydanie z trzema plikami, `SHA256SUMS`, `LICENSE` i `THIRD_PARTY_NOTICES.md`. Ręczne uruchomienie (Actions → build → Run workflow) tylko buduje i zapisuje artefakty, niczego nie publikuje.
 - **Gitea** (`.gitea/workflows/build.yml`): każde zadanie dołącza własne pliki do wydania (`tools/gitea_release.py`). Brak runnera Windows lub macOS nie blokuje wydania Linuksa. Workflow nie był jeszcze uruchamiany na prawdziwej instancji. Opis rejestracji runnerów jest w komentarzu na początku pliku.
 
-Pliki nie są podpisane, co opisuje README. Jeśli wydanie się nie powiedzie, popraw przyczynę, usuń błędny tag (`git tag -d vX.Y.Z` oraz `git push origin :refs/tags/vX.Y.Z`) i wydanie, a potem wypchnij tag jeszcze raz albo podnieś wersję o jeden numer.
+Pliki nie są podpisane, co opisuje README. Tagów `v*` na GitHubie nie da się usunąć ani przesunąć (reguła ochrony), więc jeśli wydanie się nie powiedzie albo zawiera błąd, popraw przyczynę i wydaj kolejną wersję (np. 0.1.1 po 0.1.0). Błędne wydanie możesz oznaczyć w GitHubie jako wersję próbną albo je usunąć; sam tag zostaje.
 
 ## Aktualizacja przepisów i kwot
 

@@ -1,6 +1,6 @@
 # EMKA — Policja — art. 15aa i własne dodatki
 
-Wersja programu: 0.1.0. Reguły sprawdzone: 2026-10-29. Kwoty brutto; szacunek poglądowy.
+Wersja programu: 0.1.1. Reguły sprawdzone: 2026-10-29. Kwoty brutto; szacunek poglądowy.
 
 _Narzędzie poglądowe, nie oficjalny kalkulator. Wynik nie jest decyzją organu emerytalnego ani poradą prawną; autor nie jest związany z MSWiA, ZUS ani żadną ze służb._
 

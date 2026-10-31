@@ -1,4 +1,4 @@
-# Weryfikacja EMKA 0.1.0
+# Weryfikacja EMKA 0.1.1
 
 Przepisy sprawdzono 29.10.2026. Testy i przegląd bezpieczeństwa wykonano 31.10.2026.
 
@@ -46,7 +46,7 @@ We wzorach i progach błędu nie znaleziono. Przed wydaniem poprawiono natomiast
 
 ## Testy
 
-- Wszystkie 124 testy przechodzą. W tym 21 testów okien, które wymagają sesji graficznej: uruchomiono je na macOS z Pythonem 3.11.4 i Tk 8.6. Bez sesji graficznej te 21 jest pomijanych, a pozostałe 103 przechodzi.
+- Wszystkie 127 testów przechodzi. W tym 21 testów okien, które wymagają sesji graficznej: uruchomiono je na macOS z Pythonem 3.11.4 i Tk 8.6. Bez sesji graficznej te 21 jest pomijanych, a pozostałe 106 przechodzi.
 - Test różnicowy starego i nowego silnika na 20 000 losowych profili dał takie same wyniki liczbowe wszędzie tam, gdzie oba silniki liczą. Różnią się tylko komunikaty błędów oraz 18 przypadków, w których nowa, dokładniejsza kontrola dat odrzuca zawyżoną wysługę.
 - Testy obejmują granice dat 1/2.01.1999 i 2012/2013, fakultatywne art. 15aa i 18h, progi 15 i 25 lat, pełne miesiące, okresy cywilne, limity, Medal, inwalidztwo, zbieg podwyższeń, metodę 10 lat, minimum i FUS, własne dodatki, marcową waloryzację, inflację, roczne wskaźniki, formaty dat, profile JSON i eksporty.
 - Osobne testy sprawdzają zachowanie przy spreparowanych plikach, brak modułów sieciowych w kodzie, narzędzia wydania i zasady w plikach workflow. Zagrożenia opisuje [STRIDE.md](STRIDE.md).

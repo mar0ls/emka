@@ -1,7 +1,7 @@
 # Model zagrożeń STRIDE
 
 Dokument opisuje, co może pójść nie tak z bezpieczeństwem EMKA, co już to ogranicza i co zostaje jako ryzyko.
-Dotyczy wersji 0.1.0. Przy zmianie sposobu zapisu plików, dodaniu połączeń sieciowych albo zmianie CI trzeba go przejrzeć od nowa.
+Dotyczy wersji 0.1.1. Przy zmianie sposobu zapisu plików, dodaniu połączeń sieciowych albo zmianie CI trzeba go przejrzeć od nowa.
 
 ## 1. Co analizujemy
 
@@ -71,14 +71,14 @@ Kolumna „Test” wskazuje test, który pilnuje danego zabezpieczenia.
 | D3 | Wyniki przestają być poprawne, bo wygasły progi urzędowe | Daty ważności progów są w kodzie, program ostrzega po terminie; opisane w README i `CHANGELOG.md` | `test_engine` | **Średnie**: wymaga ręcznej aktualizacji co kwartał |
 | E1 | Wczytanie pliku wykonuje obcy kod | Profil jest czytany przez `json.loads` do danych. W kodzie nie ma `eval`, `exec`, `pickle`, `subprocess` ani `os.system` | `test_security` | Niskie |
 | E2 | Znaki specjalne Tcl w nazwach (`[ ]`, `$`, `{ }`) wykonują polecenia w Tk | Tekst trafia do Tk jako wartość, a nie jako skrypt | `test_tcl_special_characters...` (GUI) | Niskie |
-| E3 | Ktoś z dostępem do repozytorium wypycha tag i publikuje własny program | Prawo zapisu do wydań ma tylko zadanie `release`, uruchamiane z tagu; tag musi zgadzać się z wersją i `CHANGELOG.md` | `test_release` | **Średnie**: każdy, kto może wypchnąć tag `v*`, może wydać program. Trzeba ograniczyć zapis do repozytorium i włączyć ochronę tagów |
+| E3 | Ktoś z dostępem do repozytorium wypycha tag i publikuje własny program | Prawo zapisu do wydań ma tylko zadanie `release`, uruchamiane z tagu; tag musi zgadzać się z wersją i `CHANGELOG.md` | `test_release` | **Niskie** na GitHubie: zapis ma tylko właściciel, a reguła blokuje usuwanie i przesuwanie tagów `v*`. W Gitei ochrony tagów nie sprawdzono |
 | E4 | Program wymaga uprawnień administratora | Nie wymaga i nie zapisuje poza wskazanymi plikami | — | Niskie |
 
 ## 4. Co zostaje do zrobienia
 
 W kolejności od najważniejszych:
 
-1. **Włączyć ochronę tagów `v*` i gałęzi `main`** w GitHubie (Settings → Rules) i Gitei, żeby tylko właściciel mógł wydawać.
+1. **Ochrona tagów `v*`** jest włączona w GitHubie (reguła blokuje usuwanie i przesuwanie). Zostaje ochrona gałęzi `main` oraz ochrona tagów w Gitei.
 2. **Dołączyć poświadczenie pochodzenia** plików z CI (`actions/attest-build-provenance`), dzięki czemu odbiorca zweryfikuje je poleceniem `gh attestation verify`. Wymaga publicznego repozytorium albo planu GitHub z tą funkcją.
 3. **Podpisać pliki.** Windows (certyfikat Authenticode) i macOS (Apple Developer ID i notaryzacja) przestałyby ostrzegać. Kosztuje, więc na razie świadomie pominięte.
 4. **Przypiąć skróty paczek** (`pip install --require-hashes`) i digest obrazu Dockera.

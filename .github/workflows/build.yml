@@ -75,8 +75,8 @@ jobs:
           merge-multiple: true
       - name: Sumy kontrolne i opis wydania
         run: |
-          cp LICENSE THIRD_PARTY_NOTICES.md release/
           python3 tools/release.py checksums release
+          cp LICENSE THIRD_PARTY_NOTICES.md release/
           python3 tools/release.py notes > notes.md
       - name: Publikacja
         env:

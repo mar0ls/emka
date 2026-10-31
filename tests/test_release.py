@@ -90,6 +90,10 @@ class WorkflowTests(unittest.TestCase):
         text = (ROOT / ".github" / "workflows" / "build.yml").read_text(encoding="utf-8")
         self.assertIn("if: startsWith(github.ref, 'refs/tags/')", text)
 
+    def test_checksums_cover_only_programs(self):
+        text = (ROOT / ".github" / "workflows" / "build.yml").read_text(encoding="utf-8")
+        self.assertLess(text.index("release.py checksums"), text.index("cp LICENSE"))
+
     def test_build_dependency_is_pinned(self):
         requirements = (ROOT / "tools" / "requirements-build.txt").read_text(encoding="utf-8")
         self.assertRegex(requirements, r"(?m)^pyinstaller==\d+\.\d+")

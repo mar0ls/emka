@@ -3,6 +3,14 @@
 Format wzorowany na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/), wersje według [SemVer](https://semver.org/lang/pl/).
 Wersja 0.x oznacza program na wczesnym etapie: zakres i format plików mogą się jeszcze zmienić.
 
+## [0.1.1] - 2026-10-31
+
+### Naprawiono
+- `SHA256SUMS` w wydaniu zawierał też `LICENSE` i `THIRD_PARTY_NOTICES.md`, więc `sha256sum -c` zgłaszał błąd, jeśli pobrano same programy. Teraz plik zawiera sumy tylko programów.
+
+### Zmieniono
+- Ochrona tagów `v*` na GitHubie jest włączona. Opis wydawania i model zagrożeń uwzględniają, że błędnego tagu nie da się usunąć.
+
 ## [0.1.0] - 2026-10-31
 
 Pierwsze wydanie. Wcześniejsze numery robocze (do 1.3.0) nie były wydawane i nie obowiązują.
