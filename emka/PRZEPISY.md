@@ -40,7 +40,7 @@ Art. 15aa wymaga osobnej liczby miesięcy z art. 13 ust. 1 pkt 1, 1d, 2 lub 5–
 
 Dla SC i SCS art. 15d odsyła do art. 15a lub 15aa, a przy wcześniejszej służbie przed 2.01.1999 stosuje się art. 15e. Okresy z art. 18ga (praca cywilna w KAS) wymagają zaświadczenia. Limit dla okresu z ust. 2 to 8 lat i 7 miesięcy, a termin na wniosek o zaświadczenie minął 30.06.2026. EMKA przyjmuje wysługę już potwierdzoną i sama tych okresów nie uznaje. Początki służby celnej sprzed 15.09.1999 wymagają indywidualnej weryfikacji.
 
-Okresy liczymy w pełnych miesiącach, a roczny przyrost proporcjonalnie do miesięcy. Wysługa w formularzu to suma z dokumentacji, bez podwójnego liczenia. W rozdziale 1a urlop wychowawczy wlicza się maksymalnie do 3 lat (art. 18c), więc wpisz wysługę już po tej korekcie. Okresy nieskładkowe wpisz po zastosowaniu ograniczeń z ustawy o FUS (m.in. art. 5 ust. 2), a nie jako zwykłą sumę kalendarzową.
+Okresy liczymy w pełnych miesiącach, a roczny przyrost proporcjonalnie do miesięcy. Okresy składkowe i nieskładkowe sumuje się według art. 5a ustawy o FUS (dodany przez Dz.U. 2026 poz. 26): niepełne miesiące liczy się w dniach, a miesiąc to 30 dni. Wysługa w formularzu to suma z dokumentacji, bez podwójnego liczenia. W rozdziale 1a urlop wychowawczy wlicza się maksymalnie do 3 lat (art. 18c), więc wpisz wysługę już po tej korekcie. Okresy nieskładkowe wpisz po zastosowaniu ograniczeń z ustawy o FUS (m.in. art. 5 ust. 2), a nie jako zwykłą sumę kalendarzową.
 
 ## Podstawa wymiaru
 
@@ -90,7 +90,7 @@ EMKA nie wydaje zaświadczeń i nie kwalifikuje zdarzeń. Wpisujesz miesiące, k
 - rozdział 1a: 75%,
 - z Medalem limity rosną o 1 pp (76% i 81% w starszym systemie, 76% w rozdziale 1a).
 
-Dodatek +15 pp wymaga orzeczonego związku inwalidztwa ze służbą. To nie jest renta inwalidzka.
+Dodatek +15 pp wymaga orzeczonego związku inwalidztwa ze służbą. To nie jest renta inwalidzka. Od 1.01.2027 orzeczenia lekarzy orzeczników ZUS w tych sprawach wydaje się według ustawy o systemie ubezpieczeń społecznych (art. 24 ust. 2 ustawy, zmiana z Dz.U. 2026 poz. 26). Nie zmienia to wzorów ani limitów.
 
 **Najniższa emerytura.** Art. 18 ust. 2–3 (dla rozdziału 1a art. 18g) przewiduje minimum świadczenia. Dla art. 15a, 15d i rozdziału 1a liczy się suma z emeryturą z FUS. Kwota FUS w formularzu służy tylko do tego porównania i nie jest dodawana do wypłaty mundurowej. Minimum wyłączysz wpisując 0, a raport to odnotuje. Dla daty spoza okresu marzec 2026 – luty 2027 wpisz właściwe minimum.
 

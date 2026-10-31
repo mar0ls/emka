@@ -1,4 +1,4 @@
-# Weryfikacja EMKA 0.1.1
+# Weryfikacja EMKA 0.1.2
 
 Ten dokument opisuje, co i jak sprawdzono, a czego nie. Nie jest opinią prawną ani potwierdzeniem zgodności z przepisami.
 
@@ -23,6 +23,8 @@ Wzory i progi w `emka/engine.py` porównano z tekstem jednolitym ustawy z 18.02.
 - organ emerytalny (art. 32).
 
 Opis w `emka/PRZEPISY.md` (artykuły, progi, stawki i normy roczne z § 2–5 rozporządzenia, np. 40 godzin lotów, 12 dni pracy sapera) porównano 31.10.2026 z tekstem ustawy (Dz.U. 2026 poz. 505) i rozporządzenia (Dz.U. 2020 poz. 1611) z ELI. Poprawiono wtedy opis norm dla jednostek pływających, art. 40c i art. 6.
+
+Ustawę zmieniającą Dz.U. 2026 poz. 26 (z przepisami w mocy od 1.01.2027) przeczytano 31.10.2026. Dla EMKA ma znaczenie tylko tyle, że zmienia tryb orzekania o niezdolności do pracy (art. 9, zmiana art. 24 ustawy mundurowej) i dodaje art. 5a ustawy o FUS o sumowaniu okresów. Wzorów, progów i limitów nie zmienia.
 
 Dorabianie sprawdzono z art. 41 ustawy mundurowej i art. 104 ustawy o FUS (Dz.U. 2025 poz. 1749): zmniejszenie nie przekracza 25% emerytury, powyżej 130% emerytura maleje o 25% i nie jest zawieszana, a przy emeryturze co najmniej 75% podstawy (bez +15 pp) nie ma zmniejszeń. Kwoty pochodzą z komunikatów: progi od 1.09.2026 z M.P. 2026 poz. 839, a maksymalne zmniejszenie 989,41 zł z M.P. 2026 poz. 220. Najniższą emeryturę 1978,49 zł i wskaźnik waloryzacji 105,3% potwierdza komunikat Prezesa ZUS z 17.02.2026.
 
@@ -51,7 +53,7 @@ Workflow `tests` na GitHubie uruchamia testy na Linuksie (Python 3.10, 3.12, 3.1
 
 ## Pliki wykonywalne
 
-Pliki powstają w PyInstallerze 6 i każdy przechodzi `--self-test` po zbudowaniu. Wydanie 0.1.1 zbudowano na GitHubie dla Windows, macOS (arm64) i Linuksa (x86_64). Windows i Linuksa nie testowano ręcznie na komputerze z pulpitem. Workflow w Gitei nie był jeszcze sprawdzany.
+Pliki powstają w PyInstallerze 6 i każdy przechodzi `--self-test` po zbudowaniu. Wydanie 0.1.2 zbudowano na GitHubie dla Windows, macOS (arm64) i Linuksa (x86_64). Windows i Linuksa nie testowano ręcznie na komputerze z pulpitem. Workflow w Gitei nie był jeszcze sprawdzany.
 
 Cały zestaw z oknami uruchomisz tak:
 

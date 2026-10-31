@@ -3,6 +3,16 @@
 Format wzorowany na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/), wersje według [SemVer](https://semver.org/lang/pl/).
 Wersja 0.x oznacza program na wczesnym etapie: zakres i format plików mogą się jeszcze zmienić.
 
+## [0.1.2] - 2026-10-31
+
+### Zmieniono
+- Zakładka „Przepisy” jest napisana od nowa: krótsze zdania, listy zamiast gęstych akapitów. Treść porównano z tekstem ustawy i rozporządzenia z ELI.
+- Poprawiono opis norm dla jednostek pływających (30 dni na morzu po co najmniej 6 godzin dziennie), art. 40c (służba kontraktowa w Policji i SG), art. 6 (waloryzacja) oraz oświadczenia z art. 18h.
+- Dopisano zmiany z Dz.U. 2026 poz. 26: art. 5a ustawy o FUS (sumowanie okresów, miesiąc to 30 dni) i nowy tryb orzekania o niezdolności do pracy od 1.01.2027. Wzory i limity bez zmian.
+
+### Dodano
+- Miesięczna kontrola przepisów w repozytorium (workflow `przepisy`, `tools/check_law.py`): nowe akty zmieniające, zmiana tekstu ujednoliconego ustawy, nowe komunikaty w Monitorze Polskim i zbliżające się terminy kwot. Przy zmianie zakłada Issue.
+
 ## [0.1.1] - 2026-10-31
 
 ### Naprawiono

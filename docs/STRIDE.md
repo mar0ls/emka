@@ -1,7 +1,7 @@
 # Model zagrożeń STRIDE
 
 Dokument opisuje, co może pójść nie tak z bezpieczeństwem EMKA, co już to ogranicza i co zostaje jako ryzyko.
-Dotyczy wersji 0.1.1. Przy zmianie sposobu zapisu plików, dodaniu połączeń sieciowych albo zmianie CI trzeba go przejrzeć od nowa.
+Dotyczy wersji 0.1.2. Przy zmianie sposobu zapisu plików, dodaniu połączeń sieciowych albo zmianie CI trzeba go przejrzeć od nowa.
 
 ## 1. Co analizujemy
 

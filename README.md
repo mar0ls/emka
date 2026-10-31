@@ -36,9 +36,9 @@ Wejdź na stronę Releases repozytorium ([github.com/mar0ls/emka](https://github
 
 Pliki nie są podpisane cyfrowo (certyfikaty kosztują), dlatego systemy ostrzegają. Programy antywirusowe mogą też czasem zgłosić fałszywy alarm przy plikach z PyInstallera. Jeśli wolisz mieć pewność, że plik jest taki, jaki wyszedł z budowania, sprawdź jego sumę kontrolną:
 
-- Windows (PowerShell): `Get-FileHash .\EMKA-0.1.1-windows.exe -Algorithm SHA256`
-- macOS: `shasum -a 256 EMKA-0.1.1-macos-arm64.zip`
-- Linux: `sha256sum EMKA-0.1.1-linux-x86_64`
+- Windows (PowerShell): `Get-FileHash .\EMKA-0.1.2-windows.exe -Algorithm SHA256`
+- macOS: `shasum -a 256 EMKA-0.1.2-macos-arm64.zip`
+- Linux: `sha256sum EMKA-0.1.2-linux-x86_64`
 
 Wynik musi być taki sam jak odpowiednia linia w pliku `SHA256SUMS` dołączonym do wydania (zawiera sumy samych programów). Wersja dla Windows jest sprawdzana tylko automatycznie przy budowaniu (test uruchomienia), nie na prawdziwym komputerze, więc jeśli coś nie działa, daj znać. Dla Maców z procesorem Intel nie ma gotowego pliku: uruchom program z kodu źródłowego.
 
