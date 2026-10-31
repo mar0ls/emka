@@ -68,11 +68,12 @@ Kolumna „Test” wskazuje test, który pilnuje danego zabezpieczenia.
 | I4 | Wyciek sekretów z CI | Workflow używa tylko tokenu `GITHUB_TOKEN`, nie ma własnych sekretów i nie używa `pull_request_target` | `test_github_workflow_has_least_privilege` | Niskie |
 | D1 | Gigantyczny lub celowo złożony plik zawiesza program | Limit 2 MB przed parsowaniem, limity list, zakresy liczb (horyzont do 60 lat, wysługa do 1200 miesięcy); sprawdzone, że skrajne wartości są odrzucane w ułamku sekundy | `test_extreme_numbers_are_rejected_quickly` | Niskie |
 | D2 | Program nie startuje u odbiorcy (brak Tk, brak biblioteki) | Samokontrola `--self-test` po zbudowaniu każdego pliku; komunikat w `run.sh` i `Uruchom.bat` | build | Niskie. Windows sprawdza tylko `--self-test` w CI, nie ręczny test na pulpicie |
-| D3 | Wyniki przestają być poprawne, bo wygasły progi urzędowe | Daty ważności progów są w kodzie, program ostrzega po terminie; opisane w README i `CHANGELOG.md` | `test_engine` | **Średnie**: wymaga ręcznej aktualizacji co kwartał |
+| D3 | Wyniki przestają być poprawne, bo wygasły progi urzędowe albo zmieniono ustawę | Daty ważności progów są w kodzie, program ostrzega po terminie; co miesiąc workflow `przepisy` sprawdza obserwowane akty w ELI i terminy kwot, a przy zmianie zakłada Issue | `test_engine`, `test_check_law` | **Średnie**: poprawki trzeba nanieść ręcznie, a kontrola widzi tylko nowe akty, nie zmiany treści bez aktu zmieniającego |
 | E1 | Wczytanie pliku wykonuje obcy kod | Profil jest czytany przez `json.loads` do danych. W kodzie nie ma `eval`, `exec`, `pickle`, `subprocess` ani `os.system` | `test_security` | Niskie |
 | E2 | Znaki specjalne Tcl w nazwach (`[ ]`, `$`, `{ }`) wykonują polecenia w Tk | Tekst trafia do Tk jako wartość, a nie jako skrypt | `test_tcl_special_characters...` (GUI) | Niskie |
 | E3 | Ktoś z dostępem do repozytorium wypycha tag i publikuje własny program | Prawo zapisu do wydań ma tylko zadanie `release`, uruchamiane z tagu; tag musi zgadzać się z wersją i `CHANGELOG.md` | `test_release` | **Niskie** na GitHubie: zapis ma tylko właściciel, a reguła blokuje usuwanie i przesuwanie tagów `v*`. W Gitei ochrony tagów nie sprawdzono |
 | E4 | Program wymaga uprawnień administratora | Nie wymaga i nie zapisuje poza wskazanymi plikami | — | Niskie |
+| E5 | Workflow `przepisy` (harmonogram, prawo `issues: write`) zmienia kod albo wydaje program na podstawie danych z zewnątrz | Tylko `contents: read` i `issues: write`. Dane z API trafiają wyłącznie do treści Issue, nie do kodu ani poleceń; nie ma `git push` ani `gh release` | `test_law_watch_can_only_open_issues` | Niskie. Odpowiedź API może zawierać dowolny tytuł, który pojawi się w Issue jako tekst |
 
 ## 4. Co zostaje do zrobienia
 

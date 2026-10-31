@@ -86,6 +86,16 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("gh release", text)
         self.assertNotIn("pull_request_target", text)
 
+    def test_law_watch_can_only_open_issues(self):
+        text = (ROOT / ".github" / "workflows" / "przepisy.yml").read_text(encoding="utf-8")
+        self.assertRegex(text, r"(?m)^permissions:\n  contents: read")
+        self.assertIn("issues: write", text)
+        self.assertNotIn("contents: write", text)
+        self.assertNotIn("gh release", text)
+        self.assertNotIn("git push", text)
+        self.assertNotIn("pull_request_target", text)
+        self.assertRegex(text, r'cron: "\d+ \d+ \d+ \* \*"')  # raz w miesiącu
+
     def test_release_only_on_tags(self):
         text = (ROOT / ".github" / "workflows" / "build.yml").read_text(encoding="utf-8")
         self.assertIn("if: startsWith(github.ref, 'refs/tags/')", text)

@@ -1,0 +1,39 @@
+# Raz w miesiącu sprawdza, czy zmieniły się przepisy, na których opiera się EMKA (API ELI Sejmu),
+# i czy zbliżają się terminy ważności kwot w engine.py. Przy znalezieniu zmian zakłada Issue.
+# Niczego nie zmienia w kodzie i niczego nie wydaje: poprawki i wydanie robi człowiek.
+# Po sprawdzeniu zmian: python3 tools/check_law.py --accept i zatwierdzenie tools/law-baseline.json.
+name: przepisy
+
+on:
+  schedule:
+    - cron: "17 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sprawdzenie:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Porównanie z punktem odniesienia
+        run: python tools/check_law.py --report raport.md
+      - name: Issue z raportem
+        if: hashFiles('raport.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create przepisy --description "Zmiany w przepisach do sprawdzenia" --color 0e8a16 || true
+          open=$(gh issue list --label przepisy --state open --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --body-file raport.md
+          else
+            gh issue create --label przepisy --title "Przepisy do sprawdzenia ($(date +%Y-%m-%d))" --body-file raport.md
+          fi

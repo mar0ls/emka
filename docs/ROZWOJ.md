@@ -12,7 +12,7 @@ Notatki dla osoby, która chce uruchomić testy, zbudować program albo wydać n
 | `emka/helptext.py` | podpowiedzi przy polach, opisy kolumn i `DISCLAIMER` (zastrzeżenie pokazywane w oknie i w raporcie) |
 | `emka/PRZEPISY.md` | opis przepisów, wyświetlany też w zakładce „Przepisy” |
 | `emka/assets/` | ikona (PNG, ICO, ICNS), generowana przez `tools/make_icon.py` (wymaga Pillow, sam program nie) |
-| `tools/` | budowanie (`build.py`, `EMKA.spec`), obsługa wydań (`release.py`, `gitea_release.py`) |
+| `tools/` | budowanie (`build.py`, `EMKA.spec`), obsługa wydań (`release.py`, `gitea_release.py`), kontrola przepisów (`check_law.py`, `law-baseline.json`) |
 | `tests/` | testy jednostkowe |
 
 Program korzysta wyłącznie z biblioteki standardowej (Python 3.10+). Kwoty to `Decimal`, zaokrąglane do grosza metodą HALF_UP. W metodzie 10 lat każdy roczny wskaźnik jest zaokrąglany do 0,01 pp przed uśrednieniem.
@@ -35,6 +35,7 @@ EMKA_GUI_TEST=1 python3 -m unittest discover -s tests -v
 | `test_storage.py` | zapis i odczyt profili, eksporty, zachowanie przy spreparowanych plikach, obecność zastrzeżenia w README, raporcie i przepisach |
 | `test_security.py` | brak importów sieciowych i dynamicznego wykonywania kodu, tylko linki `https` |
 | `test_release.py` | wersja i `CHANGELOG.md`, sumy kontrolne, skrypt publikacji w Gitei, zasady w plikach workflow |
+| `test_check_law.py` | porównywanie stanu aktów, terminy ważności kwot i raport (bez sieci, z atrapą API) |
 | `test_gui.py` | okna (tylko z `EMKA_GUI_TEST=1`) |
 
 Na GitHubie testy uruchamia `.github/workflows/tests.yml` przy pushu na `main` i przy pull requestach. Na Linuksie sprawdza Pythona 3.10, 3.12 i 3.13 razem z oknami (pod `xvfb`), a na Windows i macOS Pythona 3.12 bez okien. Nic nie buduje ani nie publikuje.
@@ -84,13 +85,27 @@ Co dzieje się po wypchnięciu tagu:
 
 Pliki nie są podpisane. Opisuje to README, a ryzyko [STRIDE.md](STRIDE.md).
 
+## Kontrola przepisów
+
+Workflow `.github/workflows/przepisy.yml` uruchamia się 1. dnia każdego miesiąca (i ręcznie: Actions → przepisy → Run workflow). Skrypt `tools/check_law.py` pyta publiczne API ELI Sejmu o pięć aktów: ustawę mundurową, rozporządzenie o podwyższaniu emerytur, ustawę o FUS, ustawę o PIT i ustawę o świadczeniach zdrowotnych. Porównuje listę aktów zmieniających, wykonawczych i orzeczeń TK z zapisem w `tools/law-baseline.json`. Sprawdza też, czy nie wygasają terminy ważności kwot w `engine.py`.
+
+Gdy coś znajdzie, zakłada Issue z etykietą `przepisy` (a jeśli takie już jest otwarte, dopisuje komentarz). Workflow ma prawo tylko do zakładania Issue. Nie zmienia kodu i niczego nie wydaje, bo skutek zmiany w ustawie trzeba ocenić samemu.
+
+Po przeczytaniu zmian i ewentualnych poprawkach zapisz nowy stan i zatwierdź go:
+
+```sh
+python3 tools/check_law.py --accept
+```
+
+Skrypt nie wykrywa zmian w treści ustawy bez nowego aktu zmieniającego (np. korekty tekstu jednolitego) ani komunikatów o kwotach, które nie są w obserwowanych aktach, więc terminy kwot pilnuje osobno.
+
 ## Aktualizacja przepisów i kwot
 
 Reguły i kwoty urzędowe mają datę sprawdzenia w `engine.py` (`RULE_DATE`). Trzeba je odświeżać:
 
 - progi 70% i 130% przeciętnego wynagrodzenia zmieniają się co kwartał (`INCOME_LIMIT_LOW`, `INCOME_LIMIT_HIGH`, ważne do `INCOME_LIMITS_VALID_TO`),
 - kwota maksymalnego zmniejszenia i najniższa emerytura zmieniają się od marca (`MAX_REDUCTION`, `MINIMUM_PENSION`),
-- po zmianie ustawy sprawdź ELI, uzupełnij testy i [WERYFIKACJA.md](WERYFIKACJA.md), a na końcu zmień `RULE_DATE`.
+- po zmianie ustawy sprawdź ELI, uzupełnij testy i [WERYFIKACJA.md](WERYFIKACJA.md), zmień `RULE_DATE` i zapisz nowy stan w `law-baseline.json` (patrz wyżej).
 
 ## Pozostałe dokumenty
 
