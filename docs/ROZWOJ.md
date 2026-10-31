@@ -1,21 +1,21 @@
 # Rozwój EMKA
 
-Ten plik jest dla osób, które chcą zbudować program, uruchomić testy albo wydać nową wersję. Instrukcja użytkownika jest w [README.md](../README.md).
+Notatki dla osoby, która chce uruchomić testy, zbudować program albo wydać nową wersję. Instrukcja dla użytkowników jest w [README.md](../README.md).
 
-## Struktura kodu
+## Kod
 
-| Plik | Co robi |
+| Plik | Zawartość |
 |---|---|
-| `emka/engine.py` | cała logika: wybór przepisów, podstawa wymiaru, podwyższenia, netto, dorabianie, symulacja. Nie zna okien |
-| `emka/gui.py` | okna Tk/ttk, tooltipy, wykres, zakładka z przepisami |
-| `emka/storage.py` | zapis i odczyt profili JSON z walidacją, eksport CSV, raport Markdown |
-| `emka/helptext.py` | teksty podpowiedzi przy polach i opisy kolumn |
-| `emka/PRZEPISY.md` | opis przepisów; ten sam plik pokazuje zakładka „Przepisy” |
-| `emka/assets/` | ikona (PNG, ICO, ICNS), odtwarzana skryptem `tools/make_icon.py` (wymaga Pillow, sam program nie) |
-| `tools/` | budowanie (`build.py`, `EMKA.spec`), pomocnik wydań (`release.py`), publikacja w Gitei (`gitea_release.py`) |
+| `emka/engine.py` | cała logika: dobór przepisów, podstawa wymiaru, podwyższenia, netto, dorabianie, symulacja. Nie zależy od okien |
+| `emka/gui.py` | okna Tk/ttk, podpowiedzi, wykres, zakładka z przepisami |
+| `emka/storage.py` | profile JSON z walidacją, eksport CSV, raport Markdown |
+| `emka/helptext.py` | podpowiedzi przy polach, opisy kolumn i `DISCLAIMER` (zastrzeżenie pokazywane w oknie i w raporcie) |
+| `emka/PRZEPISY.md` | opis przepisów, wyświetlany też w zakładce „Przepisy” |
+| `emka/assets/` | ikona (PNG, ICO, ICNS), generowana przez `tools/make_icon.py` (wymaga Pillow, sam program nie) |
+| `tools/` | budowanie (`build.py`, `EMKA.spec`), obsługa wydań (`release.py`, `gitea_release.py`) |
 | `tests/` | testy jednostkowe |
 
-Program używa tylko biblioteki standardowej Pythona 3.10+. Kwoty liczymy na `Decimal` z zaokrągleniem do grosza metodą HALF_UP. Każdy roczny wskaźnik w metodzie 10 lat jest osobno zaokrąglany do 0,01 punktu procentowego, zanim policzymy średnią.
+Program korzysta wyłącznie z biblioteki standardowej (Python 3.10+). Kwoty to `Decimal`, zaokrąglane do grosza metodą HALF_UP. W metodzie 10 lat każdy roczny wskaźnik jest zaokrąglany do 0,01 pp przed uśrednieniem.
 
 ## Testy
 
@@ -23,76 +23,77 @@ Program używa tylko biblioteki standardowej Pythona 3.10+. Kwoty liczymy na `De
 python3 -m unittest discover -s tests -v
 ```
 
-Testy okien potrzebują sesji graficznej i Pythona z Tk, więc domyślnie są pomijane. Żeby je włączyć:
+Testy okien potrzebują sesji graficznej i Pythona z Tk, dlatego domyślnie się pomijają. Żeby je uruchomić:
 
 ```sh
 EMKA_GUI_TEST=1 python3 -m unittest discover -s tests -v
 ```
 
-Co jest sprawdzane:
+| Plik | Co sprawdza |
+|---|---|
+| `test_engine.py` | wzory, granice dat (1/2.01.1999, 2012/2013), progi stażu, limity, zbieg podwyższeń, waloryzację, netto, dorabianie |
+| `test_storage.py` | zapis i odczyt profili, eksporty, zachowanie przy spreparowanych plikach, obecność zastrzeżenia w README, raporcie i przepisach |
+| `test_security.py` | brak importów sieciowych i dynamicznego wykonywania kodu, tylko linki `https` |
+| `test_release.py` | wersja i `CHANGELOG.md`, sumy kontrolne, skrypt publikacji w Gitei, zasady w plikach workflow |
+| `test_gui.py` | okna (tylko z `EMKA_GUI_TEST=1`) |
 
-- `test_engine.py`: wzory, granice dat (1/2.01.1999, 2012/2013), progi stażu, limity, zbieg podwyższeń, waloryzacja, netto, dorabianie.
-- `test_storage.py`: zapis i odczyt profili, eksporty oraz zachowanie przy spreparowanych plikach.
-- `test_security.py`: kod nie importuje modułów sieciowych ani nie wykonuje obcego kodu.
-- `test_release.py`: wersja, `CHANGELOG.md`, sumy kontrolne, skrypt publikacji w Gitei i zasady w plikach workflow.
-- `test_gui.py`: okna (tylko z `EMKA_GUI_TEST=1`).
+Na GitHubie testy uruchamia `.github/workflows/tests.yml` przy pushu na `main` i przy pull requestach. Na Linuksie sprawdza Pythona 3.10, 3.12 i 3.13 razem z oknami (pod `xvfb`), a na Windows i macOS Pythona 3.12 bez okien. Nic nie buduje ani nie publikuje.
 
-Zastrzeżenie, że to narzędzie poglądowe, mieszka w `DISCLAIMER` w `emka/helptext.py` (okno i raport). Testy pilnują, żeby było też w README i w `PRZEPISY.md`.
+## Budowanie
 
-## Budowanie programu
-
-PyInstaller nie buduje krzyżowo: plik dla danego systemu trzeba zbudować na tym systemie. Wyjątkiem jest Linux, który da się zbudować w Dockerze na innym systemie.
+PyInstaller nie buduje krzyżowo, więc plik dla danego systemu trzeba zbudować na nim. Wyjątek to Linux, który można zbudować w Dockerze.
 
 ```sh
-make            # pomoc
+make            # lista poleceń
 make mac        # EMKA.app i zip, tylko na macOS
 make win        # EMKA-<wersja>-windows.exe, tylko na Windows
 make linux      # EMKA-<wersja>-linux-<arch>; poza Linuksem przez Docker
 make all        # wszystko, co da się zbudować na tym komputerze
 make test       # testy
-make clean      # usuwa build/ i dist/ (distclean usuwa też .build-venv/)
+make clean      # usuwa build/ i dist/ (distclean także .build-venv/)
 ```
 
-Bez `make` (np. na Windows): `python tools/build.py`. Ten sam skrypt jest używany w `make` i w CI. Przy pierwszym uruchomieniu tworzy środowisko `.build-venv/` z PyInstallerem w wersji z `tools/requirements-build.txt`, więc potrzebuje internetu.
+Bez `make` (np. na Windows) wystarczy `python tools/build.py`. Ten sam skrypt używa CI. Przy pierwszym uruchomieniu tworzy `.build-venv/` i instaluje PyInstallera w wersji z `tools/requirements-build.txt`, więc potrzebny jest internet.
 
-Wymagany jest Python 3.10+ z Tk. Każdy zbudowany plik przechodzi `--self-test`: otwiera ukryte okno, liczy profil i sprawdza, że dane i ikona są w środku. Na Linuksie trzeba do tego wirtualnego ekranu (`xvfb-run`); `make linux` robi to sam.
+Wymagany jest Python 3.10+ z Tk. Każdy zbudowany plik przechodzi `--self-test`: otwiera ukryte okno, liczy profil i sprawdza, czy dane i ikona są w środku. Na Linuksie potrzebny jest do tego wirtualny ekran (`xvfb-run`), `make linux` robi to sam.
 
-Na Macu z Apple Silicon `make linux` buduje wersję arm64. Dla x86_64: `make linux DOCKER_PLATFORM=linux/amd64`. Program z Dockera wymaga glibc nie starszego niż w obrazie Debian bookworm.
+Na Macu z Apple Silicon `make linux` buduje wersję arm64. Wersję x86_64 zbudujesz poleceniem `make linux DOCKER_PLATFORM=linux/amd64`. Plik zbudowany w Dockerze wymaga glibc nie starszego niż w obrazie Debian bookworm.
 
-## Wydanie nowej wersji
+## Wydanie
 
-Numer wersji jest tylko w `emka/__init__.py`. Czytają go `pyproject.toml`, budowanie, `Makefile` i `tools/release.py`. Stosujemy [SemVer](https://semver.org/lang/pl/): 0.x oznacza program we wczesnej fazie.
+Numer wersji jest tylko w `emka/__init__.py`. Czytają go `pyproject.toml`, skrypt budowania, `Makefile` i `tools/release.py`. Wersjonujemy według [SemVer](https://semver.org/lang/pl/), a 0.x oznacza program na wczesnym etapie.
 
 1. Zmień `__version__` w `emka/__init__.py`.
-2. Dopisz sekcję `## [X.Y.Z] - RRRR-MM-DD` na górze `CHANGELOG.md`. Jej treść trafi do opisu wydania.
+2. Dopisz sekcję `## [X.Y.Z] - RRRR-MM-DD` na górze `CHANGELOG.md`. Trafi do opisu wydania.
 3. Uruchom testy i zatwierdź zmiany.
-4. Sprawdź lokalnie: `python3 tools/release.py check-tag vX.Y.Z` (sprawdza zgodność tagu z wersją i obecność wpisu w changelogu).
+4. Sprawdź tag: `python3 tools/release.py check-tag vX.Y.Z`. Polecenie weryfikuje zgodność tagu z wersją i obecność wpisu w changelogu.
 5. Wypchnij tag:
 
    ```sh
-   git tag vX.Y.Z
+   git tag -a vX.Y.Z -m "EMKA X.Y.Z"
+   git push github vX.Y.Z      # GitHub: tu powstaje wydanie
    git push origin vX.Y.Z      # Gitea
-   git push github vX.Y.Z      # GitHub (tu powstanie pełne wydanie)
    ```
 
-Co dzieje się dalej:
+Tagi `v*` są na GitHubie chronione: nie da się ich usunąć ani przesunąć (reguła nie ma wyjątku dla właściciela, można ją tylko wyłączyć w ustawieniach repozytorium). Błąd w wydaniu poprawia się więc kolejną wersją (np. 0.1.1 po 0.1.0). Błędne wydanie można w GitHubie oznaczyć jako wersję próbną albo usunąć, ale tag zostaje.
 
-- **Testy** (`.github/workflows/tests.yml`): przy pushu na `main` i pull requestach uruchamiają testy na Linuksie (Python 3.10, 3.12, 3.13, razem z oknami pod `xvfb`) oraz na Windows i macOS (Python 3.12, bez testów okien). Nic nie budują ani nie publikują.
-- **GitHub** (`.github/workflows/build.yml`): zadanie `check` weryfikuje tag, zadanie `build` buduje i testuje program na Windows, macOS i Linuksie, a zadanie `release` tworzy wydanie z trzema plikami, `SHA256SUMS`, `LICENSE` i `THIRD_PARTY_NOTICES.md`. Ręczne uruchomienie (Actions → build → Run workflow) tylko buduje i zapisuje artefakty, niczego nie publikuje.
-- **Gitea** (`.gitea/workflows/build.yml`): każde zadanie dołącza własne pliki do wydania (`tools/gitea_release.py`). Brak runnera Windows lub macOS nie blokuje wydania Linuksa. Workflow nie był jeszcze uruchamiany na prawdziwej instancji. Opis rejestracji runnerów jest w komentarzu na początku pliku.
+Co dzieje się po wypchnięciu tagu:
 
-Pliki nie są podpisane, co opisuje README. Tagów `v*` na GitHubie nie da się usunąć ani przesunąć (reguła ochrony), więc jeśli wydanie się nie powiedzie albo zawiera błąd, popraw przyczynę i wydaj kolejną wersję (np. 0.1.1 po 0.1.0). Błędne wydanie możesz oznaczyć w GitHubie jako wersję próbną albo je usunąć; sam tag zostaje.
+- **GitHub** (`.github/workflows/build.yml`). Zadanie `check` weryfikuje tag. Zadanie `build` buduje i testuje program na Windows, macOS i Linuksie. Zadanie `release` liczy sumy kontrolne programów (`SHA256SUMS`), dołącza `LICENSE` i `THIRD_PARTY_NOTICES.md` i tworzy wydanie. Ręczne uruchomienie (Actions → build → Run workflow) tylko buduje i zapisuje artefakty.
+- **Gitea** (`.gitea/workflows/build.yml`). Każde zadanie dołącza własne pliki do wydania przez `tools/gitea_release.py`, więc brak runnera Windows czy macOS nie blokuje wydania Linuksa. Workflow nie był jeszcze sprawdzony na działającej instancji. Rejestrację runnerów opisuje komentarz na początku pliku.
+
+Pliki nie są podpisane. Opisuje to README, a ryzyko [STRIDE.md](STRIDE.md).
 
 ## Aktualizacja przepisów i kwot
 
-Reguły i kwoty urzędowe mają datę sprawdzenia w `engine.py` (`RULE_DATE`). Co jakiś czas trzeba je odświeżyć:
+Reguły i kwoty urzędowe mają datę sprawdzenia w `engine.py` (`RULE_DATE`). Trzeba je odświeżać:
 
-- progi 70% i 130% przeciętnego wynagrodzenia zmieniają się co kwartał (`INCOME_LIMIT_LOW/HIGH`, ważne do `INCOME_LIMITS_VALID_TO`),
-- kwota maksymalnego zmniejszenia emerytury i najniższa emerytura zmieniają się od marca (`MAX_REDUCTION`, `MINIMUM_PENSION`),
-- po każdej zmianie ustawy sprawdź ELI, uzupełnij testy i [WERYFIKACJA.md](WERYFIKACJA.md), potem zmień `RULE_DATE`.
+- progi 70% i 130% przeciętnego wynagrodzenia zmieniają się co kwartał (`INCOME_LIMIT_LOW`, `INCOME_LIMIT_HIGH`, ważne do `INCOME_LIMITS_VALID_TO`),
+- kwota maksymalnego zmniejszenia i najniższa emerytura zmieniają się od marca (`MAX_REDUCTION`, `MINIMUM_PENSION`),
+- po zmianie ustawy sprawdź ELI, uzupełnij testy i [WERYFIKACJA.md](WERYFIKACJA.md), a na końcu zmień `RULE_DATE`.
 
-## Dokumenty
+## Pozostałe dokumenty
 
-- [WERYFIKACJA.md](WERYFIKACJA.md): zgodność obliczeń z ustawą i wyniki testów.
-- [STRIDE.md](STRIDE.md): model zagrożeń.
-- [../CHANGELOG.md](../CHANGELOG.md): historia zmian.
+- [WERYFIKACJA.md](WERYFIKACJA.md): co sprawdzono z ustawą i jakie są wyniki testów,
+- [STRIDE.md](STRIDE.md): model zagrożeń,
+- [CHANGELOG.md](../CHANGELOG.md): historia zmian.

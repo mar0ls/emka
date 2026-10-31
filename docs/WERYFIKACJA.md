@@ -1,60 +1,59 @@
 # Weryfikacja EMKA 0.1.1
 
-Przepisy sprawdzono 29.10.2026. Testy i przegląd bezpieczeństwa wykonano 31.10.2026.
+Ten dokument opisuje, co i jak sprawdzono, a czego nie. Nie jest opinią prawną ani potwierdzeniem zgodności z przepisami.
 
-## Zgodność z ustawą
+## Kto sprawdzał
 
-Reguły sprawdzono z tekstem jednolitym ustawy z 18.02.1994 (Dz.U. 2026 poz. 505, tekst ujednolicony z 10.07.2026), pobranym z ELI i porównanym artykuł po artykule z kodem:
+Autor. Nie robił tego prawnik ani specjalista od emerytur mundurowych, a wyników nie porównano z oficjalnym wyliczeniem organu emerytalnego. Przepisy sprawdzono 29.10.2026, testy i przegląd bezpieczeństwa wykonano 31.10.2026.
 
-| Przepis | Co sprawdzono | Wynik |
-|---|---|---|
-| art. 12 ust. 1, art. 18b ust. 1 | progi 15 lat (starszy system) i 25 lat (rozdział 1a); brak wymogu wieku (art. 18d uchylony) | zgodne |
-| art. 15 ust. 1 | 40% + 2,6 pp za rok; składkowe przed służbą 2,6 pp (max 3 lata) i 1,3 pp; nieskładkowe 0,7 pp | zgodne |
-| art. 15 ust. 2–5 | podwyższenia 2/1/0,5 pp za rok, 0,5 pp za rozpoczęty miesiąc strefy wojny, Medal +1 pp, inwalidztwo +15 pp, pełne miesiące | zgodne |
-| art. 15a, 15aa, 15ab | zakres dat (od 2.01.1999; 2.01.1999–30.09.2003), 1,3 pp przy 25 latach służby i okresów z art. 13 ust. 1 pkt 1, 1d, 2, 5–8, doliczanie po zwolnieniu przy emeryturze <75% | zgodne |
-| art. 14 ust. 1–4 | doliczanie po zwolnieniu: 1,3 pp za rok, emerytura <75%, wiek 55/50 lat albo inwalidztwo | zgodne |
-| art. 17 | zbieg podwyższeń za ten sam okres: tylko jedno (nie dotyczy +15 pp) | zgodne |
-| art. 18, 18g | limity 75/80/76/81%; minimum i uzupełnienie sumy z FUS tylko dla art. 15a/15d i rozdziału 1a | zgodne |
-| art. 18e, 18h | 60% + 3 pp; strefa wojny; Medal; wybór rozdziału 1a dla przyjętych przed 2013 | zgodne |
-| art. 5 ust. 1, 1a, 1c, 3, 4; art. 18f ust. 3 | podstawa: ostatnie uposażenie albo 10 lat (SM, SC, SCS i rozdział 1a); zaokrąglenie rocznych wskaźników do 0,01%; świadczenie za długoletnią służbę po 32 latach | zgodne |
-| art. 6 pkt 1 lit. a | waloryzacja obejmuje świadczenia z prawem ustalonym przed 1 marca | zgodne |
-| art. 32 | organ emerytalny (MSWiA, wojskowy dla SKW/SWW, MS dla SW) | zgodne |
+## Co porównano z przepisami
 
-Dorabianie i netto:
+Wzory i progi w `emka/engine.py` porównano z tekstem jednolitym ustawy z 18.02.1994 (Dz.U. 2026 poz. 505, tekst ujednolicony z 10.07.2026, pobrany z ELI). Rozbieżności nie znaleziono w tych miejscach:
 
-| Przepis / źródło | Co sprawdzono | Wynik |
-|---|---|---|
-| art. 41 ust. 1, 3, 4 ustawy | zmniejszenie max 25%, powyżej 130% zmniejszenie o 25% (bez zawieszenia), wyłączenie przy emeryturze ≥75% podstawy bez +15 pp | zgodne |
-| art. 104 ust. 1–8, 10 ustawy o FUS (Dz.U. 2025 poz. 1749) | definicja przychodu, strefa 70–130%, kwota maksymalna | zgodne |
-| M.P. 2026 poz. 839 | progi od 1.09.2026: 6463,20 zł i 12 003,10 zł | zgodne |
-| M.P. 2026 poz. 220 | maksymalne zmniejszenie emerytury 989,41 zł | zgodne |
-| PIT 2026 (12%/32%, 120 000 zł, 3600 zł), składka zdrowotna 9% | tylko opracowania, nie Dz.U.; kontrola: 1978,49 zł → 1800,43 zł netto zgodnie z danymi prasowymi o emeryturze minimalnej | wiarygodne, niezweryfikowane w Dz.U. |
+- progi stażu: 15 lat w starszym systemie i 25 lat w rozdziale 1a (art. 12 ust. 1, art. 18b ust. 1), bez wymogu wieku,
+- przyrosty: 40% + 2,6 pp za rok (art. 15 ust. 1), 60% + 3 pp (art. 18e), okresy składkowe i nieskładkowe przed służbą,
+- podwyższenia 2/1/0,5 pp za rok, strefa wojny za rozpoczęty miesiąc, Medal +1 pp, inwalidztwo +15 pp (art. 15 ust. 2–5),
+- art. 15a, 15aa i 15ab: zakresy dat oraz 1,3 pp przy 25 latach służby,
+- doliczanie okresów po zwolnieniu (art. 14 i art. 15aa ust. 4–7): 1,3 pp za rok, emerytura poniżej 75%,
+- zbieg podwyższeń za ten sam okres (art. 17),
+- limity 75/80/76/81% oraz najniższa emerytura z uzupełnieniem sumy z FUS (art. 18, 18g),
+- wybór rozdziału 1a (art. 18h),
+- podstawa wymiaru: ostatnie uposażenie albo 10 lat, zaokrąglenie rocznych wskaźników do 0,01%, świadczenie za długoletnią służbę po 32 latach (art. 5, art. 18f ust. 3),
+- waloryzacja tylko dla praw ustalonych przed 1 marca (art. 6 pkt 1 lit. a),
+- organ emerytalny (art. 32).
 
-Nie ma źródła urzędowego, które wprost potwierdzałoby, że ustawa mundurowa nie wyłącza zmniejszeń po osiągnięciu wieku emerytalnego. Taki wniosek wynika tylko z braku takiego przepisu w art. 41 oraz w art. 104 ust. 1–8 ustawy o FUS. Warto go potwierdzić w ZER MSWiA.
+Opis w `emka/PRZEPISY.md` (artykuły, progi, stawki i normy roczne z § 2–5 rozporządzenia, np. 40 godzin lotów, 12 dni pracy sapera) porównano 31.10.2026 z tekstem ustawy (Dz.U. 2026 poz. 505) i rozporządzenia (Dz.U. 2020 poz. 1611) z ELI. Poprawiono wtedy opis norm dla jednostek pływających, art. 40c i art. 6.
 
-Kwoty urzędowe: najniższa emerytura 1978,49 zł i wskaźnik waloryzacji 105,3% od 1.03.2026 potwierdzone komunikatem Prezesa ZUS z 17.02.2026.
+Dorabianie sprawdzono z art. 41 ustawy mundurowej i art. 104 ustawy o FUS (Dz.U. 2025 poz. 1749): zmniejszenie nie przekracza 25% emerytury, powyżej 130% emerytura maleje o 25% i nie jest zawieszana, a przy emeryturze co najmniej 75% podstawy (bez +15 pp) nie ma zmniejszeń. Kwoty pochodzą z komunikatów: progi od 1.09.2026 z M.P. 2026 poz. 839, a maksymalne zmniejszenie 989,41 zł z M.P. 2026 poz. 220. Najniższą emeryturę 1978,49 zł i wskaźnik waloryzacji 105,3% potwierdza komunikat Prezesa ZUS z 17.02.2026.
 
-Nie sprawdzono w tekście urzędowym (te elementy pochodzą z wcześniejszej analizy): szczegółowych norm rocznych z rozporządzenia RM (Dz.U. 2020 poz. 1611), art. 88–89 ustawy o FUS (zasady waloryzacji i zaokrągleń) oraz nowelizacji Dz.U. 2025 poz. 1820. Okresy z podwyższeniami użytkownik wpisuje sam, po potwierdzeniu w jednostce.
+## Czego nie sprawdzono w tekście urzędowym
 
-We wzorach i progach błędu nie znaleziono. Przed wydaniem poprawiono natomiast:
-
-- Wysługa była sprawdzana tylko z dokładnością do miesiąca kalendarzowego. Przy przyjęciu np. 15.01.2001 i zwolnieniu 31.10.2026 program dopuszczał 310 miesięcy, a pełnych jest 309. Zawyżenie wysługi zawyżało emeryturę o 2,6/12 pp podstawy za każdy miesiąc. Teraz sprawdzane są dokładne daty.
-- Pole „świadczenie za długoletnią służbę” blokowało obliczenia w trybie „gotowa podstawa”, choć w tym trybie nie jest używane.
-- Komunikaty błędów pokazywały nazwy techniczne pól (np. `service_months`) zamiast etykiet z formularza.
-- Kolumna „Styczeń brutto” w CSV w rzeczywistości oznacza kwotę przed marcową waloryzacją (w pierwszym roku wypłat styczeń może nie być wypłacany). Zmieniono nazwę na „Przed marcową waloryzacją brutto”.
-- `calculate()` zmieniał przekazany profil (zamieniał pola tekstowe na liczby).
+- **PIT i składka zdrowotna.** Stawki na 2026 r. (12% i 32%, próg 120 000 zł, 3600 zł, składka 9%) pochodzą z opracowań, a nie z Dz.U. Kontrola: najniższa emerytura 1978,49 zł daje 1800,43 zł netto, zgodnie z danymi prasowymi o emeryturze minimalnej.
+- **Nowelizacja Dz.U. 2025 poz. 1820.** Jej opis (dodatkowe okresy równorzędne SC i SCS, zmiana art. 15aa) pochodzi z wcześniejszej analizy. Normy roczne podwyższeń program i tak nie stosuje: okresy wpisuje użytkownik po potwierdzeniu w jednostce.
+- **Waloryzacja.** Zasad z art. 88 i następnych ustawy o FUS (coroczna waloryzacja od 1 marca) nie porównywano z tekstem urzędowym. Art. 6 ustawy mundurowej sprawdzono.
+- **Wiek a dorabianie.** Nie ma źródła urzędowego, które wprost potwierdzałoby, że ustawa mundurowa nie wyłącza zmniejszeń po osiągnięciu wieku emerytalnego. Wniosek wynika tylko z braku takiego przepisu w art. 41 i w art. 104 ust. 1–8 ustawy o FUS. Warto go potwierdzić w ZER MSWiA.
 
 ## Testy
 
-- Wszystkie 127 testów przechodzi. W tym 21 testów okien, które wymagają sesji graficznej: uruchomiono je na macOS z Pythonem 3.11.4 i Tk 8.6. Bez sesji graficznej te 21 jest pomijanych, a pozostałe 106 przechodzi.
-- Test różnicowy starego i nowego silnika na 20 000 losowych profili dał takie same wyniki liczbowe wszędzie tam, gdzie oba silniki liczą. Różnią się tylko komunikaty błędów oraz 18 przypadków, w których nowa, dokładniejsza kontrola dat odrzuca zawyżoną wysługę.
-- Testy obejmują granice dat 1/2.01.1999 i 2012/2013, fakultatywne art. 15aa i 18h, progi 15 i 25 lat, pełne miesiące, okresy cywilne, limity, Medal, inwalidztwo, zbieg podwyższeń, metodę 10 lat, minimum i FUS, własne dodatki, marcową waloryzację, inflację, roczne wskaźniki, formaty dat, profile JSON i eksporty.
-- Osobne testy sprawdzają zachowanie przy spreparowanych plikach, brak modułów sieciowych w kodzie, narzędzia wydania i zasady w plikach workflow. Zagrożenia opisuje [STRIDE.md](STRIDE.md).
-- Nie wykonano wizualnej oceny okna (zrzutów ekranu). Testy jednostkowe uruchomiono lokalnie tylko na macOS. Workflow `tests` (Linux z Pythonem 3.10, 3.12 i 3.13, Windows, macOS) jest przygotowany, ale nie był jeszcze uruchomiony.
+Zestaw ma 127 testów. Lokalnie uruchomiono go na macOS z Pythonem 3.11.4 i Tk 8.6. Bez sesji graficznej 21 testów okien jest pomijanych, a pozostałe 106 przechodzi.
 
-Pliki wykonywalne (PyInstaller 6, `make`): macOS arm64 zbudowany i sprawdzony przez `--self-test`. Linux x86_64 i aarch64 zbudowane w Dockerze (Debian bookworm) i sprawdzone pod xvfb. Windows: workflow `build` uruchomiony ręcznie na GitHubie zbudował plik i przeszedł `--self-test`. Nie testowano go ręcznie na komputerze z pulpitem. Skrypty wydania (`tools/release.py`, `tools/gitea_release.py`) są przetestowane na atrapie serwera, ale publikacja wydania z tagu (zadanie `release` na GitHubie) i workflow w Gitei nie były jeszcze uruchomione.
+Testy obejmują:
 
-Pełny zestaw w sesji graficznej:
+- granice dat (1/2.01.1999, 2012/2013), progi 15 i 25 lat, pełne miesiące, okresy cywilne,
+- art. 15aa i 18h, limity, Medal, inwalidztwo, zbieg podwyższeń, metodę 10 lat, minimum i FUS,
+- netto, dorabianie, waloryzację, inflację, formaty dat,
+- zapis i odczyt profili, eksport CSV i raportu, zachowanie przy spreparowanych plikach,
+- brak modułów sieciowych w kodzie, narzędzia wydania i zasady w plikach workflow (zagrożenia opisuje [STRIDE.md](STRIDE.md)).
+
+Wyników nie porównywano z żadnym oficjalnym wyliczeniem. Nie oceniano też wyglądu okna na zrzutach ekranu.
+
+Workflow `tests` na GitHubie uruchamia testy na Linuksie (Python 3.10, 3.12, 3.13), Windows i macOS. Ostatni przebieg zakończył się powodzeniem.
+
+## Pliki wykonywalne
+
+Pliki powstają w PyInstallerze 6 i każdy przechodzi `--self-test` po zbudowaniu. Wydanie 0.1.1 zbudowano na GitHubie dla Windows, macOS (arm64) i Linuksa (x86_64). Windows i Linuksa nie testowano ręcznie na komputerze z pulpitem. Workflow w Gitei nie był jeszcze sprawdzany.
+
+Cały zestaw z oknami uruchomisz tak:
 
 ```sh
 EMKA_GUI_TEST=1 python3 -m unittest discover -s tests -v
